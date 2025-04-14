@@ -17,4 +17,4 @@ For my project, I will be implementing a class D amplifier with a high order (n>
 **Size Estimate:  ~15,000 slices**
 
 ## Block Diagram
-<img alt="block diagram" src="119c_block.svg">
+<img alt="block diagram" src="./figures/119c_block.svg">
