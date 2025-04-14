@@ -1,5 +1,6 @@
-## Class D amplifier with post-filter feedback
+# Class D amplifier with post-filter feedback
 
+## Project Description
 Class D amplification has become the most prominent technology across modern audio amplifiers. Class D amps are able to achieve much higher efficiency due to switching the power stage fully on and off instead of operating the MOSFETs or BJTs as linear devices. However, class D amps are often known for being generally “lower quality” than their class AB counterparts. 
 
 The most basic class D amplifiers use PWM and a low-pass filter to convert the audio signal from digital to analog. The width of the pulses sent to the power stage corresponds to the amplitude of the audio wave at a given time. If switched at a sufficiently high frequency, the carrier frequency of the PWM signal will be above the range of human hearing. However, high resolution, high frequency PWM quickly runs into limits based on the maximum clock frequency of current chips. In order to have n bits of PWM resolution, there must be a timer which counts to 2n within every PWM cycle. For example, audio commonly is stored with 16 bits of resolution at ~40 kHz (commonly 44.1 kHz but 40 is a kinder number). 40,000*216 = 2.6 GHz counter increment frequency, which pushes the limits of even high end FPGA chips. Additionally, 40 kHz is close enough to the audible range that some distortion may be audible. Most modern class D architectures have PWM frequencies of between 250 kHz and 1 MHz. 
