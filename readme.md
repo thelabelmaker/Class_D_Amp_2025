@@ -23,9 +23,9 @@ For my project, I will be implementing a class D amplifier with a high order (n>
 
 ### Demo
 The amplifier output of the amplifier will be attached to some speakers drivers I found in Ricketts library. These drivers are capiable of handling several hundred watts of power, far less than my amplifier will output. This makes them an ideal test case. I hope to give them proper cabinets before the end of the term, but am unsure if I will have time to do so.
+
+
 <img alt="drivers" src="./figures/speakers.jpg">
-
-
 
 ## Block Diagram
 <img alt="block diagram" src="./figures/119c_block.svg">
