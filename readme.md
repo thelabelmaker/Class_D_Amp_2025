@@ -2,6 +2,10 @@
 
 ## Project Description
 
+**Technology:     Xilinx Artix 7 XC7A35T**
+
+**Size Estimate:  ~15,000 slices**
+
 ### Background
 Class D amplification has become the most prominent technology across modern audio amplifiers. Class D amps are able to achieve much higher efficiency due to switching the power stage fully on and off instead of operating the MOSFETs or BJTs as linear devices. However, class D amps are often known for being generally “lower quality” than their class AB counterparts. 
 
@@ -21,9 +25,6 @@ For my project, I will be implementing a class D amplifier with a high order (n>
 The amplifier output of the amplifier will be attached to some speakers drivers I found in Ricketts library. These drivers are capiable of handling several hundred watts of power, far less than my amplifier will output. This makes them an ideal test case. I hope to give them proper cabinets before the end of the term, but am unsure if I will have time to do so.
 <img alt="drivers" src="./figures/speakers.jpg">
 
-**Technology:     Xilinx Artix 7 XC7A35T**
-
-**Size Estimate:  ~15,000 slices**
 
 
 ## Block Diagram
