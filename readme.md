@@ -19,3 +19,8 @@ For my project, I will be implementing a class D amplifier with a high order (n>
 
 ## Block Diagram
 <img alt="block diagram" src="./figures/119c_block.svg">
+
+
+## FPGA Schematic
+
+## Power Stage Schematic
