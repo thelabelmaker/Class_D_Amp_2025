@@ -53,6 +53,10 @@ end I2S_master;
 
 architecture DataFlow of I2S_master is
 
+    --  store audio data while being shifted in
+    signal temp_d   :   UNSIGNED(DO_L'range);
+
+    --  divider for system clock to generate other clks
     signal sclk_div :   UNSIGNED((WS_B-1) downto 0)
 
     --  select left or right to save data on WS change
@@ -83,13 +87,20 @@ architecture DataFlow of I2S_master is
         if rising_edge(BCLK) then
             if(not wsd and wsp) then 
                 DO_L <= d_temp;
-            elsif(wsd and wsp) then
-                DO_R <= d_temp;
             end if;
-        end if;
+            
+            if(wsd and wsp) then
+                DO_R <= d_temp;
+            end if;        
 
-        if wsp = '0' then 
-            cnt <=  CNT_ZERO;
+            if wsp = '0' then 
+                cnt <=  CNT_ZERO;
+            else
+                cnt <=  cnt + to_unsinged(1, cnt'length);
+            end if;
+            
+            d_temp(ind) <=  DI;
+            
         end if;
     end process;
 end DataFlow;
