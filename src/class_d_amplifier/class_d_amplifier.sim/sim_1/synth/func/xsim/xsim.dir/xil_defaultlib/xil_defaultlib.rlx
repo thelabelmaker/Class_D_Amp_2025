@@ -1,0 +1,5 @@
+0.7
+2020.2
+Nov  8 2024
+22:36:55
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/class_d_amplifier/class_d_amplifier.sim/sim_1/synth/func/xsim/sim_test_func_synth.v,1745949073,verilog,,,,clk_setup;clk_setup_CLK_MGR_0_0;clk_setup_CLK_MGR_0_0_CLK_MGR;clk_setup_I2S_master_0_0;clk_setup_I2S_master_0_0_I2S_master;clk_setup_PWM_output_0_0;clk_setup_clk_wiz_0_0;clk_setup_clk_wiz_0_0_clk_wiz;clk_setup_wrapper;glbl,,,../../../../../class_d_amplifier.gen/sources_1/bd/clk_setup/ipshared/3cbc,,,,,

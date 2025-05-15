@@ -1,0 +1,86 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date         : Wed May 14 18:58:05 2025
+| Host         : legolas running 64-bit unknown
+| Command      : report_control_sets -verbose -file clk_setup_wrapper_control_sets_placed.rpt
+| Design       : clk_setup_wrapper
+| Device       : xc7a35t
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Total control sets                                       |     8 |
+|    Minimum number of control sets                        |     8 |
+|    Addition due to synthesis replication                 |     0 |
+|    Addition due to physical synthesis replication        |     0 |
+| Unused register locations in slices containing registers |    28 |
++----------------------------------------------------------+-------+
+* Control sets can be merged at opt_design using control_set_merge or merge_equivalent_drivers
+** Run report_qor_suggestions for automated merging and remapping suggestions
+
+
+2. Histogram
+------------
+
++--------------------+-------+
+|       Fanout       | Count |
++--------------------+-------+
+| Total control sets |     8 |
+| >= 0 to < 4        |     1 |
+| >= 4 to < 6        |     5 |
+| >= 6 to < 8        |     1 |
+| >= 8 to < 10       |     0 |
+| >= 10 to < 12      |     1 |
+| >= 12 to < 14      |     0 |
+| >= 14 to < 16      |     0 |
+| >= 16              |     0 |
++--------------------+-------+
+* Control sets can be remapped at either synth_design or opt_design
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |               9 |            3 |
+| No           | No                    | Yes                    |              16 |            4 |
+| No           | Yes                   | No                     |               0 |            0 |
+| Yes          | No                    | No                     |              19 |            5 |
+| Yes          | No                    | Yes                    |               0 |            0 |
+| Yes          | Yes                   | No                     |               0 |            0 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++--------------------------------------------------+---------------------------------------------------+---------------------------------------------------+------------------+----------------+--------------+
+|                   Clock Signal                   |                   Enable Signal                   |                  Set/Reset Signal                 | Slice Load Count | Bel Load Count | Bels / Slice |
++--------------------------------------------------+---------------------------------------------------+---------------------------------------------------+------------------+----------------+--------------+
+|  clk_setup_i/clk_wiz_0/inst/SYSCLK               |                                                   |                                                   |                1 |              2 |         2.00 |
+|  clk_setup_i/I2S_interconnect_0/inst/clk_mgr/BCK | RST_IBUF                                          |                                                   |                1 |              4 |         4.00 |
+|  clk_setup_i/clk_wiz_0/inst/SYSCLK               |                                                   | clk_setup_i/PWM_output_0/inst/clear               |                1 |              5 |         5.00 |
+|  clk_setup_i/clk_wiz_0/inst/SYSCLK               | RST_IBUF                                          |                                                   |                2 |              5 |         2.50 |
+|  clk_setup_i/clk_wiz_0/inst/SYSCLK               | clk_setup_i/PWM_output_0/inst/dsync0              |                                                   |                1 |              5 |         5.00 |
+|  clk_setup_i/I2S_interconnect_0/inst/clk_mgr/BCK | clk_setup_i/I2S_interconnect_0/inst/control/DO_L0 |                                                   |                1 |              5 |         5.00 |
+|  clk_setup_i/I2S_interconnect_0/inst/clk_mgr/BCK |                                                   |                                                   |                2 |              7 |         3.50 |
+|  clk_setup_i/clk_wiz_0/inst/SYSCLK               |                                                   | clk_setup_i/I2S_interconnect_0/inst/clk_mgr/clear |                3 |             11 |         3.67 |
++--------------------------------------------------+---------------------------------------------------+---------------------------------------------------+------------------+----------------+--------------+
+
+

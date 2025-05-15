@@ -1,0 +1,22 @@
+Vivado Simulator v2024.2.0
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: /home/ethan/Xilinx_Vivado/Vivado/2024.2/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 8 -L work -L secureip -L xpm --snapshot sim_test_behav work.sim_test -log elaborate.log 
+Using 8 slave threads.
+Starting static elaboration
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package std.standard
+Compiling package std.textio
+Compiling package ieee.std_logic_1164
+Compiling package ieee.math_real
+Compiling package ieee.numeric_std
+Compiling package work.i2s_constants
+Compiling architecture behavioral of entity work.I2S_CLK_MGR [i2s_clk_mgr_default]
+Compiling architecture dataflow of entity work.I2S_master [i2s_master_default]
+Compiling architecture behavioral of entity work.I2S_interconnect [i2s_interconnect_default]
+Compiling architecture behavioral of entity work.PWM_output [pwm_output_default]
+Compiling architecture behavioral of entity work.sim_test
+Built simulation snapshot sim_test_behav

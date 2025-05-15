@@ -1,0 +1,20 @@
+INFO: [VRFC 10-2263] Analyzing Verilog file "/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/class_d_amplifier/class_d_amplifier.sim/sim_1/synth/func/xsim/sim_test_func_synth.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module clk_setup
+INFO: [VRFC 10-311] analyzing module clk_setup_CLK_MGR_0_0
+INFO: [VRFC 10-311] analyzing module clk_setup_CLK_MGR_0_0_CLK_MGR
+INFO: [VRFC 10-311] analyzing module clk_setup_I2S_master_0_0
+INFO: [VRFC 10-311] analyzing module clk_setup_I2S_master_0_0_I2S_master
+INFO: [VRFC 10-311] analyzing module clk_setup_PWM_output_0_0
+INFO: [VRFC 10-311] analyzing module clk_setup_clk_wiz_0_0
+INFO: [VRFC 10-311] analyzing module clk_setup_clk_wiz_0_0_clk_wiz
+INFO: [VRFC 10-311] analyzing module clk_setup_wrapper
+INFO: [VRFC 10-311] analyzing module glbl
+INFO: [VRFC 10-163] Analyzing VHDL file "/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/class_d_amplifier/SRC/I2S_constants.vhd" into library work
+INFO: [VRFC 10-163] Analyzing VHDL file "/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/class_d_amplifier/class_d_amplifier.srcs/sources_1/new/CLK_MGR.vhd" into library work
+INFO: [VRFC 10-3107] analyzing entity 'CLK_MGR'
+INFO: [VRFC 10-163] Analyzing VHDL file "/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/class_d_amplifier/SRC/I2S_master.vhd" into library work
+INFO: [VRFC 10-3107] analyzing entity 'I2S_master'
+INFO: [VRFC 10-163] Analyzing VHDL file "/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/class_d_amplifier/class_d_amplifier.srcs/sources_1/new/PWM_output.vhd" into library work
+INFO: [VRFC 10-3107] analyzing entity 'PWM_output'
+INFO: [VRFC 10-163] Analyzing VHDL file "/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/class_d_amplifier/class_d_amplifier.srcs/sim_1/new/simulation.v" into library work
+INFO: [VRFC 10-3107] analyzing entity 'sim_test'

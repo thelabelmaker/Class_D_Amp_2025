@@ -1,0 +1,24 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Wed May 14 18:42:13 2025
+# Process ID         : 192415
+# Current directory  : /home/ethan/Documents/ee119c/Class_D_Amp_2025/src/class_d_amplifier/class_d_amplifier.runs/clk_setup_Quantizer_Interconne_0_0_synth_1
+# Command line       : vivado -log clk_setup_Quantizer_Interconne_0_0.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source clk_setup_Quantizer_Interconne_0_0.tcl
+# Log file           : /home/ethan/Documents/ee119c/Class_D_Amp_2025/src/class_d_amplifier/class_d_amplifier.runs/clk_setup_Quantizer_Interconne_0_0_synth_1/clk_setup_Quantizer_Interconne_0_0.vds
+# Journal file       : /home/ethan/Documents/ee119c/Class_D_Amp_2025/src/class_d_amplifier/class_d_amplifier.runs/clk_setup_Quantizer_Interconne_0_0_synth_1/vivado.jou
+# Running On         : legolas
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD Ryzen 7 PRO 6850U with Radeon Graphics
+# CPU Frequency      : 3452.523 MHz
+# CPU Physical cores : 8
+# CPU Logical cores  : 16
+# Host memory        : 15449 MB
+# Swap memory        : 8589 MB
+# Total Virtual      : 24038 MB
+# Available Virtual  : 15688 MB
+#-----------------------------------------------------------
+source clk_setup_Quantizer_Interconne_0_0.tcl -notrace
