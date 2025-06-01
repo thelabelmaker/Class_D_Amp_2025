@@ -1,3 +1,4 @@
-.vscode
-./computation/venv
-./src/ghdl_sims/test/build/
+computation/venv
+src/ghdl_sims/test/build
+computation/.ipynb_checkpoints
+*.vscode
