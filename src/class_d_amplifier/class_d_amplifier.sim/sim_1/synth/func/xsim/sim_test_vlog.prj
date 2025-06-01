@@ -1,6 +1,0 @@
-# compile verilog/system verilog design source files
-verilog xil_defaultlib  --include "../../../../../class_d_amplifier.gen/sources_1/bd/clk_setup/ipshared/3cbc" \
-"sim_test_func_synth.v" \
-
-# Do not sort compile order
-nosort

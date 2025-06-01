@@ -1,1 +1,3 @@
 .vscode
+./computation/venv
+./src/ghdl_sims/test/build/

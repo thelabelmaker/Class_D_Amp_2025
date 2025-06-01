@@ -1,9 +1,0 @@
-{
-	"version": "1.0",
-	"modules": {
-		"clk_setup": {
-			"proto_instances": {
-			}
-		}
-	}
-}

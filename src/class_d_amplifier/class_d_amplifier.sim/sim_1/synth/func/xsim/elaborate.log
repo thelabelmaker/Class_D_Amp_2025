@@ -1,6 +1,0 @@
-Vivado Simulator v2024.2.0
-Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
-Running: /home/ethan/Xilinx_Vivado/Vivado/2024.2/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L work -L unisims_ver -L secureip --snapshot sim_test_func_synth work.sim_test work.glbl -log elaborate.log 
-Using 8 slave threads.
-ERROR: [XSIM 43-3225] Cannot find design unit work.glbl in library work located at xsim.dir/work.

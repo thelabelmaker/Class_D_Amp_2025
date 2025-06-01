@@ -1,0 +1,112 @@
+SUMMARY
+=======
+
+User Files:    10
+Library Files: 23
+Vendor Files:  0
+Total Files:   33
+
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/amp_testbench.vhd              [3.52 kb]   []     
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/class_d_top.vhd                [    0 b]   []     
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/CLK_MGR.vhd                    [2.42 kb]   []     
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/filters.vhd                    [  889 b]   []     
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/I2S_constants.vhd              [  722 b]   []     
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/I2S_interconnect.vhd           [2.97 kb]   []     
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/I2S_top.vhd                    [    0 b]   []     
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/PWM_output.vhd                 [1.74 kb]   []     
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/Quantizer_Interconnect.vhd     [2.25 kb]   []     
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/sigma_delta.vhd                [5.64 kb]   []     
+
+
+
+STATISTICS
+==========
+
+User Files:
+    TotalLines:       769; 
+    CodeLines:        416; 
+    EmptyLines:       136; 
+    CommentLines:     217; 
+    
+Library Files:
+    TotalLines:    12,384; 
+    CodeLines:      4,062; 
+    EmptyLines:     1,604; 
+    CommentLines:   6,718; 
+    
+Vendor Libs:
+    TotalLines:         0; 
+    CodeLines:          0; 
+    EmptyLines:         0; 
+    CommentLines:       0; 
+    
+Total Files:
+    TotalLines:    13,153; 
+    CodeLines:      4,478; 
+    EmptyLines:     1,740; 
+    CommentLines:   6,935; 
+    
+
+FILE DETAILS
+============
+
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/amp_testbench.vhd
+   - Libraries:       <work>
+   - Statistics:      TotalLines:  153; CodeLines:  101; EmptyLines:  25; CommentLines: 27;  
+   - SyntaxErrors:    0
+   - SemanticErrors:  0
+
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/class_d_top.vhd
+   - Libraries:       <work>
+   - Statistics:      TotalLines:  1; CodeLines:  0; EmptyLines:  1; CommentLines: 0;  
+   - SyntaxErrors:    0
+   - SemanticErrors:  0
+
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/CLK_MGR.vhd
+   - Libraries:       <work>
+   - Statistics:      TotalLines:  82; CodeLines:  34; EmptyLines:  13; CommentLines: 35;  
+   - SyntaxErrors:    0
+   - SemanticErrors:  0
+
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/filters.vhd
+   - Libraries:       <work>
+   - Statistics:      TotalLines:  39; CodeLines:  28; EmptyLines:  11; CommentLines: 0;  
+   - SyntaxErrors:    6
+   - SemanticErrors:  0
+
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/I2S_constants.vhd
+   - Libraries:       <work>
+   - Statistics:      TotalLines:  18; CodeLines:  16; EmptyLines:  1; CommentLines: 1;  
+   - SyntaxErrors:    0
+   - SemanticErrors:  0
+
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/I2S_interconnect.vhd
+   - Libraries:       <work>
+   - Statistics:      TotalLines:  122; CodeLines:  73; EmptyLines:  21; CommentLines: 28;  
+   - SyntaxErrors:    0
+   - SemanticErrors:  0
+
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/I2S_top.vhd
+   - Libraries:       <work>
+   - Statistics:      TotalLines:  1; CodeLines:  0; EmptyLines:  1; CommentLines: 0;  
+   - SyntaxErrors:    0
+   - SemanticErrors:  0
+
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/PWM_output.vhd
+   - Libraries:       <work>
+   - Statistics:      TotalLines:  68; CodeLines:  35; EmptyLines:  10; CommentLines: 23;  
+   - SyntaxErrors:    0
+   - SemanticErrors:  0
+
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/Quantizer_Interconnect.vhd
+   - Libraries:       <work>
+   - Statistics:      TotalLines:  81; CodeLines:  41; EmptyLines:  10; CommentLines: 30;  
+   - SyntaxErrors:    0
+   - SemanticErrors:  0
+
+/home/ethan/Documents/ee119c/Class_D_Amp_2025/src/ghdl_sims/sigma_delta.vhd
+   - Libraries:       <work>
+   - Statistics:      TotalLines:  204; CodeLines:  88; EmptyLines:  43; CommentLines: 73;  
+   - SyntaxErrors:    0
+   - SemanticErrors:  0
+
