@@ -82,6 +82,14 @@ architecture Behavioral of top_interconnect is
             CLK       : in  STD_LOGIC;
             RST       : in  STD_LOGIC);
     end component;
+    
+    component CLK_SOLO_wrapper is 
+        port(
+            CLK : out STD_LOGIC;
+            CLK_100 : in STD_LOGIC;
+            RST : in STD_LOGIC
+        );
+    end component;
 
     signal i2s_l_rdy : integer;
     signal i2s_r_rdy : integer;

@@ -252,9 +252,6 @@ architecture DataFlow of SigmaDeltaSim is
             --  (Yp'length-X'length-Y'length)));
             --Y   <=  std_logic_vector(resize(Yp, Y'length));
             S2d <=  S2;
-            
-            
-
 
             dclkd   <=  dclk;
             dclkp   <=  dclkd xor dclk;
