@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 
 library work;
+use work.I2S_constants.all;
 
 library IEEE;
     use IEEE.STD_LOGIC_1164.all;
@@ -33,12 +34,12 @@ library IEEE;
     --use UNISIM.VComponents.all;
 
 entity crossover_interconnect is
-    port (AUD_IN_L : in  STD_LOGIC;
-          AUD_IN_R : in  STD_LOGIC;
-          HPF_L    : out STD_LOGIC;
-          HPF_R    : out STD_LOGIC;
-          LPF_L    : out STD_LOGIC;
-          LPF_R    : out STD_LOGIC;
+    port (AUD_IN_L : in  STD_LOGIC_VECTOR((AUD_B-1) downto 0);
+          AUD_IN_R : in  STD_LOGIC_VECTOR((AUD_B-1) downto 0);
+          HPF_L    : out STD_LOGIC_VECTOR((AUD_B-1) downto 0);
+          HPF_R    : out STD_LOGIC_VECTOR((AUD_B-1) downto 0);
+          LPF_L    : out STD_LOGIC_VECTOR((AUD_B-1) downto 0);
+          LPF_R    : out STD_LOGIC_VECTOR((AUD_B-1) downto 0);
           CLK      : in  STD_LOGIC;
           RST      : in  STD_LOGIC;
           L_RDY    : out STD_LOGIC;

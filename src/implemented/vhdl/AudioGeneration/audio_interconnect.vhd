@@ -44,6 +44,10 @@ entity audio_interconnect is
         AUD_LPF_R : out STD_LOGIC;
         AUD_LPF_L : out STD_LOGIC;
 
+        update    : in  std_logic;
+        addr      : in  std_logic_vector(7 downto 0);
+        cval      : in  std_logic_vector(31 downto 0);
+
         L_READ    : in  std_logic;
         R_READ    : in  std_logic;
 
@@ -84,10 +88,13 @@ architecture Behavioral of audio_interconnect is
               R_READ : in  STD_LOGIC;
               DI_L   : in  STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
               DI_R   : in  STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
+              update : in  std_logic;
+              addr   : in  std_logic_vector(7 downto 0);
+              cval   : in  std_logic_vector(31 downto 0);
               CLK    : in  STD_LOGIC;
               RST    : in  STD_LOGIC;
-              EN_L   : out STD_LOGIC_VECTOR((PWM_B - 1) downto 0);
-              EN_R   : out STD_LOGIC_VECTOR((PWM_B - 1) downto 0));
+              EN_L   : out STD_LOGIC;
+              EN_R   : out STD_LOGIC);
     end component;
 
     signal hpf_l : std_logic_vector((AUD_B - 1) downto 0);
@@ -122,6 +129,9 @@ begin
             R_READ => co_l_rdy,
             DI_L   => hpf_l,
             DI_R   => hpf_r,
+            update => update,
+            addr   => addr,
+            cval   => cval,
             CLK    => CLK,
             RST    => RST,
             EN_L   => AUD_HPF_L,
@@ -134,6 +144,9 @@ begin
             R_READ => co_l_rdy,
             DI_L   => lpf_l,
             DI_R   => lpf_r,
+            update => update,
+            addr   => addr,
+            cval   => cval,
             CLK    => CLK,
             RST    => RST,
             EN_L   => AUD_LPF_L,

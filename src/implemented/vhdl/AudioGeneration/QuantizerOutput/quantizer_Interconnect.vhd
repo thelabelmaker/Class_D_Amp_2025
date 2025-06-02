@@ -38,10 +38,13 @@ entity Quantizer_Interconnect is
           R_READ : in  STD_LOGIC;
           DI_L   : in  STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
           DI_R   : in  STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
+          update : in  std_logic;
+          addr   : in  std_logic_vector(7 downto 0);
+          cval   : in  std_logic_vector(31 downto 0);
           CLK    : in  STD_LOGIC;
           RST    : in  STD_LOGIC;
-          EN_L   : out STD_LOGIC_VECTOR((PWM_B - 1) downto 0);
-          EN_R   : out STD_LOGIC_VECTOR((PWM_B - 1) downto 0));
+          EN_L   : out STD_LOGIC;
+          EN_R   : out STD_LOGIC);
 end entity;
 
 architecture Behavioral of Quantizer_Interconnect is
@@ -49,10 +52,13 @@ architecture Behavioral of Quantizer_Interconnect is
     component SigmaDelta is
         generic (nbits : integer := 8; outb : integer := 8);
         port (
-            X    : in     std_logic_vector((nbits - 1) downto 0);
-            Y    : buffer std_logic_vector((outb - 1) downto 0) := (others => '1');
-            clk  : in     std_logic;
-            dclk : in     std_logic
+            X      : in     std_logic_vector((nbits - 1) downto 0);
+            Y      : buffer std_logic := '1';
+            clk    : in     std_logic;
+            update : in     std_logic;
+            addr   : in     std_logic_vector(7 downto 0);
+            cval   : in     std_logic_vector(31 downto 0);
+            dclk   : in     std_logic
         );
     end component;
 
@@ -68,33 +74,41 @@ architecture Behavioral of Quantizer_Interconnect is
     signal SDCLK_L : std_logic;
     signal SDCLK_R : std_logic;
 
-    signal QUANT_L : std_logic_vector((PWM_B - 1) downto 0);
-    signal QUANT_R : std_logic_vector((PWM_B - 1) downto 0);
+    signal QUANT_L : std_logic;
+    signal QUANT_R : std_logic;
 
 begin
     quantizer_l: SigmaDelta
         generic map (AUD_B, PWM_B)
         port map (
-            X    => DI_L,
-            Y    => QUANT_L,
-            clk  => SDCLK_L,
-            dclk => L_READ
+            X      => DI_L,
+            Y      => QUANT_L,
+            clk    => SDCLK_L,
+            update => update,
+            addr   => addr,
+            cval   => cval,
+            dclk   => L_READ
         );
 
     quantizer_r: SigmaDelta
         generic map (AUD_B, PWM_B)
         port map (
-            X    => DI_R,
-            Y    => QUANT_R,
-            clk  => SDCLK_R,
-            dclk => R_READ
+            X      => DI_R,
+            Y      => QUANT_R,
+            clk    => SDCLK_R,
+            update => update,
+            addr   => addr,
+            cval   => cval,
+            dclk   => R_READ
         );
 
+    --QUANT_L <= DI_L(DI_L'high downto DI_L'length-PWM_B);
+    --QUANT_R <= DI_R(DI_L'high downto DI_L'length-PWM_B);
     pwm_output_l: PWM_output
         port map (
             SCLK  => CLK,
             DCLK  => L_READ,
-            SDCLK => SDCLK_L,
+            SDCLK => CLK,
             DIN   => QUANT_L,
             EN    => EN_L,
             RST   => RST
@@ -104,7 +118,7 @@ begin
         port map (
             SCLK  => CLK,
             DCLK  => R_READ,
-            SDCLK => SDCLK_R,
+            SDCLK => CLK,
             DIN   => QUANT_R,
             EN    => EN_R,
             RST   => RST

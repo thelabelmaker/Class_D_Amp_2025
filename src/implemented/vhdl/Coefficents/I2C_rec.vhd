@@ -31,7 +31,7 @@ entity I2C_rec is
     port (SDA  : inout STD_LOGIC;
           SCL  : in    STD_LOGIC;
           RST  : in    STD_LOGIC;
-          DOUT : out   STD_LOGIC_VECTOR(47 downto 0);
+          DOUT : out   STD_LOGIC_VECTOR(39 downto 0);
           DRDY : out   STD_LOGIC;
           CLK  : in    STD_LOGIC
          );
@@ -72,12 +72,14 @@ begin
         if rising_edge(SDA) and SCL = '1' then
             BUS_STATE <= IDLE;
             bit_cntr <= 7;
-
-        elsif falling_edge(SDA) and SCL = '1' then
+        end if;
+        
+        if falling_edge(SDA) and SCL = '1' then
             BUS_STATE <= LISTEN_ADDR;
             bit_cntr <= 7;
 
-        elsif rising_edge(SCL) then
+        end if; 
+        if rising_edge(SCL) then
             case (BUS_STATE) is
                 when IDLE =>
                     ACK <= 'Z';

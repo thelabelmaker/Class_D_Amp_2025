@@ -20,7 +20,7 @@
 
 library IEEE;
     use IEEE.STD_LOGIC_1164.all;
-    use IEEE.NUMERIC_STD.ALL;
+    use IEEE.NUMERIC_STD.all;
 
 library work;
     use work.I2S_constants.all;
@@ -35,7 +35,6 @@ entity top_interconnect is
           WS            : out   STD_LOGIC;
           BCK           : out   STD_LOGIC;
           --MCLK          : out   STD_LOGIC;
-          
           SDA           : inout STD_LOGIC;
           SCL           : in    STD_LOGIC;
 
@@ -49,7 +48,7 @@ entity top_interconnect is
           AUD_LPF_R_NEG : out   STD_LOGIC;
           AUD_LPF_L_NEG : out   STD_LOGIC;
 
-          CLK           : in    STD_LOGIC;
+          CLK_100       : in    STD_LOGIC;
           RST           : in    STD_LOGIC);
 end entity;
 
@@ -79,57 +78,87 @@ architecture Behavioral of top_interconnect is
             L_READ    : in  std_logic;
             R_READ    : in  std_logic;
 
+            update    : in  std_logic;
+            addr      : in  std_logic_vector(7 downto 0);
+            cval      : in  std_logic_vector(31 downto 0);
+
             CLK       : in  STD_LOGIC;
             RST       : in  STD_LOGIC);
     end component;
-    
-    component CLK_SOLO_wrapper is 
-        port(
-            CLK : out STD_LOGIC;
-            CLK_100 : in STD_LOGIC;
-            RST : in STD_LOGIC
+
+    component I2C_interconnect is
+        port (
+            SDA    : inout std_logic;
+            SCL    : in   std_logic;
+            dout   : out   std_logic_vector(31 downto 0);
+            addr   : out   std_logic_vector(7 downto 0);
+            update : out   std_logic;
+
+            clk    : in    std_logic;
+            rst    : in    std_logic
+        );
+
+    end component;
+
+    component CLK_SOLO_wrapper is
+        port (
+            CLK     : out STD_LOGIC;
+            CLK_100 : in  STD_LOGIC;
+            RST     : in  STD_LOGIC
         );
     end component;
 
-    signal i2s_l_rdy : integer;
-    signal i2s_r_rdy : integer;
+    signal CLK       : std_logic;
+    signal i2s_l_rdy : std_logic;
+    signal i2s_r_rdy : std_logic;
 
     signal i2s_dr : std_logic_vector((AUD_B - 1) downto 0);
     signal i2s_dl : std_logic_vector((AUD_B - 1) downto 0);
 
-    signal in_l_pos : std_logic_vector((AUD_B-1) downto 0);
-    signal in_r_pos : std_logic_vector((AUD_B-1) downto 0);
-    signal in_l_neg : std_logic_vector((AUD_B-1) downto 0);
-    signal in_r_neg : std_logic_vector((AUD_B-1) downto 0);
+    signal in_l_pos : std_logic_vector((AUD_B - 1) downto 0);
+    signal in_r_pos : std_logic_vector((AUD_B - 1) downto 0);
+    signal in_l_neg : std_logic_vector((AUD_B - 1) downto 0);
+    signal in_r_neg : std_logic_vector((AUD_B - 1) downto 0);
 
-    signal hpf_r_pos: std_logic;
-    signal hpf_l_pos: std_logic;
-    signal hpf_r_neg: std_logic;
-    signal hpf_l_neg: std_logic;
-    signal lpf_r_pos: std_logic;
-    signal lpf_l_pos: std_logic;
-    signal lpf_r_neg: std_logic;
-    signal lpf_l_neg: std_logic;
+    signal hpf_r_pos : std_logic;
+    signal hpf_l_pos : std_logic;
+    signal hpf_r_neg : std_logic;
+    signal hpf_l_neg : std_logic;
+    signal lpf_r_pos : std_logic;
+    signal lpf_l_pos : std_logic;
+    signal lpf_r_neg : std_logic;
+    signal lpf_l_neg : std_logic;
 
-    signal hpf_r_pos_xd: std_logic;
-    signal hpf_l_pos_xd: std_logic;
-    signal lpf_r_pos_xd: std_logic;
-    signal lpf_l_pos_xd: std_logic;
+    signal hpf_r_pos_xd : std_logic;
+    signal hpf_l_pos_xd : std_logic;
+    signal lpf_r_pos_xd : std_logic;
+    signal lpf_l_pos_xd : std_logic;
 
-    signal lpf_r_neg_ad: std_logic;
-    signal lpf_l_neg_ad: std_logic;
-    signal hpf_r_neg_ad: std_logic;
-    signal hpf_l_neg_ad: std_logic;
+    signal lpf_r_neg_ad : std_logic;
+    signal lpf_l_neg_ad : std_logic;
+    signal hpf_r_neg_ad : std_logic;
+    signal hpf_l_neg_ad : std_logic;
 
-    signal lpf_r_neg_bd: std_logic;
-    signal lpf_l_neg_bd: std_logic;
-    signal hpf_r_neg_bd: std_logic;
-    signal hpf_l_neg_bd: std_logic;
+    signal lpf_r_neg_bd : std_logic;
+    signal lpf_l_neg_bd : std_logic;
+    signal hpf_r_neg_bd : std_logic;
+    signal hpf_l_neg_bd : std_logic;
+
+    signal update : std_logic;
+    signal i2c_do : std_logic_vector(31 downto 0);
+    signal i2c_ao : std_logic_vector(7 downto 0);
 
     -- 0 for AD modulation, 1 for BD
-    constant mod_mode   :   std_logic := '0';
+    constant mod_mode : std_logic := '0';
 
 begin
+
+    pll: CLK_SOLO_wrapper
+        port map (
+            CLK_100 => CLK_100,
+            CLK     => CLK,
+            RST     => RST
+        );
 
     i2s_controller: I2S_interconnect
         port map (
@@ -147,66 +176,80 @@ begin
     in_l_pos <= i2s_dl;
     in_r_pos <= i2s_dr;
 
-    in_l_neg <= std_logic_vector
-    (-1*signed(i2s_dl));
-    in_r_neg <= std_logic_vector
-    (-1*signed(i2s_dr));
+    in_l_neg <= std_logic_vector(resize(- 1 * signed(i2s_dl), AUD_B));
+    in_r_neg <= std_logic_vector(resize(- 1 * signed(i2s_dr), AUD_B));
 
+    i2c_mgr: I2C_interconnect
+        port map (
+            SDA    => SDA,
+            SCL    => SCL,
+            dout   => i2c_do,
+            addr   => i2c_ao,
+            update => update,
+            clk    => clk,
+            rst    => rst
+        );
 
-    
-    audio_pos : audio_interconnect
-    port map (
-        AUD_IN_L  => in_l_pos,
-        AUD_IN_R  => in_r_pos,
-        AUD_HPF_R => hpf_r_pos_xd,
-        AUD_HPF_L => hpf_l_pos_xd,
-        AUD_LPF_R => lpf_r_pos_xd,
-        AUD_LPF_L => lpf_l_pos_xd,
-        L_READ    => i2s_l_rdy,
-        R_READ    => i2s_r_rdy,
-        CLK       => CLK,
-        RST       => RST
-    );
+    audio_pos: audio_interconnect
+        port map (
+            AUD_IN_L  => in_l_pos,
+            AUD_IN_R  => in_r_pos,
+            AUD_HPF_R => hpf_r_pos_xd,
+            AUD_HPF_L => hpf_l_pos_xd,
+            AUD_LPF_R => lpf_r_pos_xd,
+            AUD_LPF_L => lpf_l_pos_xd,
+            L_READ    => i2s_l_rdy,
+            R_READ    => i2s_r_rdy,
+            update    => update,
+            addr      => i2c_ao,
+            cval      => i2c_do,
+            CLK       => CLK,
+            RST       => RST
+        );
 
-    audio_neg : audio_interconnect
-    port map (
-        AUD_IN_L  => in_l_neg,
-        AUD_IN_R  => in_r_neg,
-        AUD_HPF_R => hpf_r_neg_bd,
-        AUD_HPF_L => hpf_l_neg_bd,
-        AUD_LPF_R => lpf_r_neg_bd,
-        AUD_LPF_L => lpf_l_neg_bd,
-        L_READ    => i2s_l_rdy,
-        R_READ    => i2s_r_rdy,
-        CLK       => CLK,
-        RST       => RST
-    );
+    audio_neg: audio_interconnect
+        port map (
+            AUD_IN_L  => in_l_neg,
+            AUD_IN_R  => in_r_neg,
+            AUD_HPF_R => hpf_r_neg_bd,
+            AUD_HPF_L => hpf_l_neg_bd,
+            AUD_LPF_R => lpf_r_neg_bd,
+            AUD_LPF_L => lpf_l_neg_bd,
+            L_READ    => i2s_l_rdy,
+            R_READ    => i2s_r_rdy,
+            update    => update,
+            addr      => i2c_ao,
+            cval      => i2c_do,
+            CLK       => CLK,
+            RST       => RST
+        );
 
     hpf_r_neg_ad <= not hpf_r_pos_xd;
     hpf_l_neg_ad <= not hpf_l_pos_xd;
     lpf_r_neg_ad <= not lpf_r_pos_xd;
     lpf_l_neg_ad <= not lpf_l_pos_xd;
 
-    process(CLK) begin
+    process (CLK)
+    begin
         if rising_edge(CLK) then
-            
-            hpf_l_pos   <=  hpf_l_pos_xd;
-            hpf_r_pos   <=  hpf_l_pos_xd;
-            lpf_l_pos   <=  hpf_l_pos_xd;
-            lpf_r_pos   <=  hpf_l_pos_xd;
 
-            if mod_mode = '1' then 
-                hpf_l_neg   <=  hpf_l_neg_bd;
-                hpf_r_neg   <=  hpf_r_neg_bd;
-                lpf_l_neg   <=  lpf_l_neg_bd;
-                lpf_r_neg   <=  lpf_r_neg_bd;
+            hpf_l_pos <= hpf_l_pos_xd;
+            hpf_r_pos <= hpf_l_pos_xd;
+            lpf_l_pos <= hpf_l_pos_xd;
+            lpf_r_pos <= hpf_l_pos_xd;
+
+            if mod_mode = '1' then
+                hpf_l_neg <= hpf_l_neg_bd;
+                hpf_r_neg <= hpf_r_neg_bd;
+                lpf_l_neg <= lpf_l_neg_bd;
+                lpf_r_neg <= lpf_r_neg_bd;
             else
-                hpf_l_neg   <=  hpf_l_neg_ad;
-                hpf_r_neg   <=  hpf_r_neg_ad;
-                lpf_l_neg   <=  lpf_l_neg_ad;
-                lpf_r_neg   <=  lpf_r_neg_ad;
+                hpf_l_neg <= hpf_l_neg_ad;
+                hpf_r_neg <= hpf_r_neg_ad;
+                lpf_l_neg <= lpf_l_neg_ad;
+                lpf_r_neg <= lpf_r_neg_ad;
             end if;
-            
+
             AUD_HPF_L_NEG <= hpf_l_neg;
             AUD_HPF_R_NEG <= hpf_r_neg;
 
@@ -221,8 +264,5 @@ begin
 
         end if;
     end process;
-
-    AUD_HPF_L_NEG <= not AUD_HPF_L_POS;
-    AUD_HPF_R_NEG <= not AUD_HPF_R_POS;
 
 end architecture;
