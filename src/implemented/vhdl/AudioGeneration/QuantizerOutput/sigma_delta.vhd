@@ -1,5 +1,4 @@
 
-
 library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
@@ -46,7 +45,7 @@ begin
 end architecture;
 
 library work;
-use work.addr_lookup.all;
+    use work.addr_lookup.all;
 
 library ieee;
     use ieee.std_logic_1164.all;
@@ -60,7 +59,7 @@ entity SigmaDelta is
         X      : in     std_logic_vector((nbits - 1) downto 0);
 
         --  quantized output
-        Y      : buffer std_logic_vector((outb - 1) downto 0) := (others => '1');
+        Y      : buffer std_logic;
 
         --  global clock input
         clk    : in     std_logic;
@@ -106,7 +105,7 @@ architecture DataFlow of SigmaDelta is
     -- constant E21 : signed((ibits - 1) downto 0) := to_signed(integer(cscale *
     -- real(- 0.020)), ibits);
     signal A : const_arr := (to_signed(integer(cscale * real(- 3.0 / 4.0)), ibits),
-                             to_signed(integer(cscale * real(- 1.250)), ibits),
+                             to_signed(integer(cscale * real(- 1.000)), ibits),
                              to_signed(integer(cscale * real(0.0)), ibits)
                             );
 
@@ -122,7 +121,7 @@ architecture DataFlow of SigmaDelta is
 
     signal D13 : signed((ibits - 1) downto 0) := to_signed(integer(cscale * real(0.000)), ibits);
 
-    signal E21 : signed((ibits - 1) downto 0) := to_signed(integer(cscale * real(- 0.020)), ibits);
+    signal E21 : signed((ibits - 1) downto 0) := to_signed(integer(cscale * real(- 0.0015)), ibits);
 
     --  3 bit modulator, 64x OSR
     -- constant A : const_arr := 
@@ -270,12 +269,14 @@ begin
     process (clk)
     begin
         if rising_edge(clk) then
-            Ye <= padBHY & padBLY;
+            Ye(Ye'high downto X'high) <= (others => Yp(Yp'high));
+            Ye(X'high - 1 downto 0) <= (others => not Yp(Yp'high));
+
             --  quantization of the output
             --  if MSB of S is 1, result negitive, output low
             --  if MSB of S is 0, result positive, output high
             --Y   <=  std_logic_vector(Yp((ibits-1) downto (ibits-Y'length)));
-            Y <= std_logic_vector(Yp(Yp'high downto Yp'high - Y'high));
+            Y <= Yp(Yp'high);
 
             --  Y   <=  std_logic_vector(Yp((Yp'high-X'length) downto
             --  (Yp'length-X'length-Y'length)));
@@ -292,33 +293,34 @@ begin
         end if;
     end process;
 
-    process (update) begin
+    process (update)
+    begin
         if rising_edge(update) then
-            case(addr) is
+            case (addr) is
                 when A1_addr =>
                     A(1) <= resize(signed(cval), ibits);
-                when A2_addr => 
+                when A2_addr =>
                     A(2) <= resize(signed(cval), ibits);
                 when A3_addr =>
                     A(3) <= resize(signed(cval), ibits);
                 when B1_addr =>
                     B(1) <= resize(signed(cval), ibits);
-                when B2_addr => 
+                when B2_addr =>
                     B(2) <= resize(signed(cval), ibits);
                 when B3_addr =>
                     B(3) <= resize(signed(cval), ibits);
                 when C1_addr =>
                     C(1) <= resize(signed(cval), ibits);
-                when C2_addr => 
+                when C2_addr =>
                     C(2) <= resize(signed(cval), ibits);
                 when C3_addr =>
                     C(3) <= resize(signed(cval), ibits);
                 when D12_addr =>
-                    D13 <=  resize(signed(cval), ibits);
+                    D13 <= resize(signed(cval), ibits);
                 when E21_addr =>
-                    E21 <=  resize(signed(cval), ibits);
+                    E21 <= resize(signed(cval), ibits);
                 when others =>
-                    
+
             end case;
         end if;
     end process;

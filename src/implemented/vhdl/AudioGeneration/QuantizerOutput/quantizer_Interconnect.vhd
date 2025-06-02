@@ -66,7 +66,7 @@ architecture Behavioral of Quantizer_Interconnect is
         port (SCLK  : in  STD_LOGIC;
               DCLK  : in  STD_LOGIC;
               SDCLK : out std_logic;
-              DIN   : in  std_logic_vector((PWM_B - 1) downto 0);
+              DIN   : in  std_logic;
               EN    : out STD_LOGIC;
               RST   : in  STD_LOGIC);
     end component;
@@ -83,7 +83,7 @@ begin
         port map (
             X      => DI_L,
             Y      => QUANT_L,
-            clk    => SDCLK_L,
+            clk    => CLK,
             update => update,
             addr   => addr,
             cval   => cval,
@@ -95,7 +95,7 @@ begin
         port map (
             X      => DI_R,
             Y      => QUANT_R,
-            clk    => SDCLK_R,
+            clk    => CLK,
             update => update,
             addr   => addr,
             cval   => cval,
@@ -108,7 +108,6 @@ begin
         port map (
             SCLK  => CLK,
             DCLK  => L_READ,
-            SDCLK => CLK,
             DIN   => QUANT_L,
             EN    => EN_L,
             RST   => RST
@@ -118,7 +117,6 @@ begin
         port map (
             SCLK  => CLK,
             DCLK  => R_READ,
-            SDCLK => CLK,
             DIN   => QUANT_R,
             EN    => EN_R,
             RST   => RST
