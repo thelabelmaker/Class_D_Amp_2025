@@ -104,24 +104,24 @@ architecture DataFlow of SigmaDelta is
 
     -- constant E21 : signed((ibits - 1) downto 0) := to_signed(integer(cscale *
     -- real(- 0.020)), ibits);
-    signal A : const_arr := (to_signed(integer(cscale * real(- 3.0 / 4.0)), ibits),
-                             to_signed(integer(cscale * real(- 1.000)), ibits),
-                             to_signed(integer(cscale * real(0.0)), ibits)
+    signal A : const_arr := (to_signed(integer(cscale * real(-0.90370)), ibits),
+                             to_signed(integer(cscale * real(-0.65510)), ibits),
+                             to_signed(integer(cscale * real(-0.76320)), ibits)
                             );
 
-    signal B : const_arr := (to_signed(integer(cscale * real(3.0 / 4.0)), ibits),
-                             to_signed(integer(cscale * real(0.0)), ibits),
-                             to_signed(integer(cscale * real(0.0)), ibits)
+    signal B : const_arr := (to_signed(integer(cscale * real(0.90370)), ibits),
+                             to_signed(integer(cscale * real(0.71880)), ibits),
+                             to_signed(integer(cscale * real(0.76300)), ibits)
                             );
 
-    signal C : const_arr := (to_signed(integer(cscale * real(0.8500)), ibits),
+    signal C : const_arr := (to_signed(integer(cscale * real(0.19720)), ibits),
                              to_signed(integer(cscale * real(1.0000)), ibits),
                              to_signed(integer(cscale * real(0)), ibits)
                             );
 
     signal D13 : signed((ibits - 1) downto 0) := to_signed(integer(cscale * real(0.000)), ibits);
 
-    signal E21 : signed((ibits - 1) downto 0) := to_signed(integer(cscale * real(- 0.0015)), ibits);
+    signal E21 : signed((ibits - 1) downto 0) := to_signed(integer(cscale * real(0.000)), ibits);
 
     --  3 bit modulator, 64x OSR
     -- constant A : const_arr := 
