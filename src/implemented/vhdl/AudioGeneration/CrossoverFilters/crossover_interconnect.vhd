@@ -20,6 +20,8 @@
 
 library work;
 use work.I2S_constants.all;
+use work.filter_constants.all;
+use work.crossover_coef.all;
 
 library IEEE;
     use IEEE.STD_LOGIC_1164.all;
@@ -49,15 +51,146 @@ entity crossover_interconnect is
 end entity;
 
 architecture Behavioral of crossover_interconnect is
+    component biquad is
+        generic (
+            xbits : integer := 16
+        );
+        port (
+            X    : in  std_logic_vector((xbits - 1) downto 0);
+            Y    : out std_logic_vector((xbits - 1) downto 0);
+            coef : in  biquad_coef;
+            clk  : in  std_logic;
+            rst  : in  std_logic
+        );
+    end component;
+    
+    signal AUD_HPF_MID_X_L: std_logic_vector(AUD_IN_L'range);
+    signal AUD_HPF_MID_X_R: std_logic_vector(AUD_IN_R'range);
 
+    signal AUD_LPF_MID_X_L: std_logic_vector(AUD_IN_L'range);
+    signal AUD_LPF_MID_X_R: std_logic_vector(AUD_IN_R'range);
+
+    signal AUD_IN_L_SYNC: std_logic_vector(AUD_IN_L'range);
+    signal AUD_IN_R_SYNC: std_logic_vector(AUD_IN_R'range);
+
+    signal ldrdyd: std_logic;
+    signal rdrdyd : std_logic;
+    
 begin
-    HPF_L <= AUD_IN_L;
-    HPF_R <= AUD_IN_R;
+    biquad_l_1_hpf : biquad
+    generic map (
+        xbits => AUD_IN_L'length
+    )
+    port map (
+        X    => AUD_IN_L_SYNC,
+        Y    => AUD_HPF_MID_X_L,
+        coef => hpf_crossover_coef_arr(0),
+        clk  => clk,
+        rst  => rst
+    );
 
-    LPF_L <= AUD_IN_L;
-    LPF_R <= AUD_IN_R;
+    biquad_l_2_hpf : biquad
+    generic map (
+        xbits => AUD_IN_L'length
+    )
+    port map (
+        X    => AUD_HPF_MID_X_L,
+        Y    => HPF_L,
+        coef => hpf_crossover_coef_arr(1),
+        clk  => clk,
+        rst  => rst
+    );
 
-    L_RDY <= L_READ;
-    R_RDY <= R_READ;
+    biquad_r_1_hpf : biquad
+    generic map (
+        xbits => AUD_IN_R'length
+    )
+    port map (
+        X    => AUD_IN_R_SYNC,
+        Y    => AUD_HPF_MID_X_R,
+        coef => hpf_crossover_coef_arr(0),
+        clk  => clk,
+        rst  => rst
+    );
+
+    biquad_r_2_hpf : biquad
+    generic map (
+        xbits => AUD_IN_R'length
+    )
+    port map (
+        X    => AUD_HPF_MID_X_R,
+        Y    => HPF_R,
+        coef => hpf_crossover_coef_arr(1),
+        clk  => clk,
+        rst  => rst
+    );
+
+
+
+    biquad_l_1_lpf : biquad
+    generic map (
+        xbits => AUD_IN_L'length
+    )
+    port map (
+        X    => AUD_IN_L_SYNC,
+        Y    => AUD_LPF_MID_X_L,
+        coef => lpf_crossover_coef_arr(0),
+        clk  => clk,
+        rst  => rst
+    );
+
+    biquad_l_2_lpf : biquad
+    generic map (
+        xbits => AUD_IN_L'length
+    )
+    port map (
+        X    => AUD_LPF_MID_X_L,
+        Y    => LPF_L,
+        coef => lpf_crossover_coef_arr(1),
+        clk  => clk,
+        rst  => rst
+    );
+
+    biquad_r_1_lpf : biquad
+    generic map (
+        xbits => AUD_IN_R'length
+    )
+    port map (
+        X    => AUD_IN_R_SYNC,
+        Y    => AUD_LPF_MID_X_R,
+        coef => lpf_crossover_coef_arr(0),
+        clk  => clk,
+        rst  => rst
+    );
+
+    biquad_r_2_lpf : biquad
+    generic map (
+        xbits => AUD_IN_R'length
+    )
+    port map (
+        X    => AUD_LPF_MID_X_R,
+        Y    => LPF_R,
+        coef => lpf_crossover_coef_arr(1),
+        clk  => clk,
+        rst  => rst
+    );
+
+    process(CLK) begin
+        if rising_edge(CLK) then
+            ldrdyd <= L_RDY;
+            rdrdyd <= R_RDY;
+            if rdrdyd and R_RDY then
+                AUD_IN_R_SYNC <= AUD_IN_R;
+            else
+                AUD_IN_R_SYNC <= AUD_IN_R_SYNC;
+            end if; 
+            
+            if ldrdyd and L_RDY then
+                AUD_IN_L_SYNC <= AUD_IN_L;
+            else
+                AUD_IN_L_SYNC <= AUD_IN_L_SYNC;
+            end if; 
+        end if;
+    end process;
 
 end architecture;

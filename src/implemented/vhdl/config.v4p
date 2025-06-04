@@ -66,7 +66,7 @@
   V4p.Settings.Completion.ShowVendorSymbols = False
   V4p.Settings.Completion.ShowVendorSnippets = False
   V4p.Settings.StutterMode.Enabled = False
-  V4p.Settings.StutterMode.HorizontalLineWidth = 100
+  V4p.Settings.StutterMode.HorizontalLineWidth = 80
   V4p.Settings.ErrorChecker.MissingAssociations.IgnoreInstanceOutputs = False
   V4p.Settings.ErrorChecker.MissingAssociations.IgnoreInstanceInputsWithDefaultValues = False
   V4p.Settings.ErrorChecker.SymbolUnused.IgnoreLoopVariables = True

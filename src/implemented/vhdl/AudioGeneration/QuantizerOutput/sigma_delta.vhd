@@ -75,7 +75,7 @@ end entity;
 architecture DataFlow of SigmaDelta is
 
     --  extra bits to use with integrators
-    constant ebits : integer := 16;
+    constant ebits : integer := 32;
 
     --  total bits for integrators
     constant ibits : integer := X'length + ebits;
@@ -104,17 +104,17 @@ architecture DataFlow of SigmaDelta is
 
     -- constant E21 : signed((ibits - 1) downto 0) := to_signed(integer(cscale *
     -- real(- 0.020)), ibits);
-    signal A : const_arr := (to_signed(integer(cscale * real(-0.90370)), ibits),
-                             to_signed(integer(cscale * real(-0.65510)), ibits),
-                             to_signed(integer(cscale * real(-0.76320)), ibits)
+    signal A : const_arr := (to_signed(integer(cscale * real(-0.750)), ibits),
+                             to_signed(integer(cscale * real(-1.250)), ibits),
+                             to_signed(integer(cscale * real(0.0)), ibits)
                             );
 
-    signal B : const_arr := (to_signed(integer(cscale * real(0.90370)), ibits),
-                             to_signed(integer(cscale * real(0.71880)), ibits),
-                             to_signed(integer(cscale * real(0.76300)), ibits)
+    signal B : const_arr := (to_signed(integer(cscale * real(0.750)), ibits),
+                             to_signed(integer(cscale * real(0.0)), ibits),
+                             to_signed(integer(cscale * real(0.0)), ibits)
                             );
 
-    signal C : const_arr := (to_signed(integer(cscale * real(0.19720)), ibits),
+    signal C : const_arr := (to_signed(integer(cscale * real(0.750)), ibits),
                              to_signed(integer(cscale * real(1.0000)), ibits),
                              to_signed(integer(cscale * real(0)), ibits)
                             );
