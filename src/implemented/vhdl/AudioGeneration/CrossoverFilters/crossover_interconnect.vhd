@@ -83,9 +83,17 @@ architecture Behavioral of crossover_interconnect is
     signal HPF_R_A : std_logic_vector(AUD_IN_R'range);
     signal HPF_L_A : std_logic_vector(AUD_IN_R'range);
 
+    signal LPF_R_S : std_logic_vector(AUD_IN_R'range);
+    signal LPF_L_S : std_logic_vector(AUD_IN_R'range);
+
+    signal HPF_R_S : std_logic_vector(AUD_IN_R'range);
+    signal HPF_L_S : std_logic_vector(AUD_IN_R'range);
+
     signal ldrdyd: std_logic;
     signal rdrdyd : std_logic;
     
+    --  0 = crossover filter disabled, 1 = enabled
+    constant filt_en: std_logic := '0';
 begin
     biquad_l_1_hpf : biquad
     generic map (
@@ -206,6 +214,10 @@ begin
             else
                 AUD_IN_L_HOLD <= AUD_IN_L_HOLD;
             end if; 
+            HPF_L   <=  HPF_L_S;
+            HPF_R   <=  HPF_R_S;
+            LPF_L   <=  LPF_L_S;
+            LPF_R   <=  LPF_R_S;
         end if;
     end process;
 
@@ -213,11 +225,17 @@ begin
         if rising_edge(filt_clk) then
             AUD_IN_L_SYNC   <=  AUD_IN_L_HOLD;
             AUD_IN_R_SYNC   <=  AUD_IN_R_HOLD;
-            HPF_L   <=  HPF_L_A;
-            HPF_R   <=  HPF_R_A;
-
-            LPF_L   <=  LPF_L_A;
-            LPF_R   <=  LPF_R_A;
+            if filt_en = '1' then
+                HPF_L_S   <=  HPF_L_A;
+                HPF_R_S   <=  HPF_R_A;
+                LPF_L_S   <=  LPF_L_A;
+                LPF_R_S   <=  LPF_R_A;
+            else
+                HPF_L_S   <=  AUD_IN_L_SYNC;
+                HPF_R_S   <=  AUD_IN_R_SYNC;
+                LPF_L_S   <=  AUD_IN_L_SYNC;
+                LPF_R_S   <=  AUD_IN_R_SYNC;
+            end if;
         end if;
     end process;
 
