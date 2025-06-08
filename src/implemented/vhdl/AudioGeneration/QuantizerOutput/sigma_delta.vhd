@@ -104,17 +104,17 @@ architecture DataFlow of SigmaDelta is
 
     -- constant E21 : signed((ibits - 1) downto 0) := to_signed(integer(cscale *
     -- real(- 0.020)), ibits);
-    signal A : const_arr := (to_signed(integer(cscale * real(-0.750)), ibits),
+    constant A : const_arr := (to_signed(integer(cscale * real(-0.750)), ibits),
                              to_signed(integer(cscale * real(-1.250)), ibits),
                              to_signed(integer(cscale * real(0.0)), ibits)
                             );
 
-    signal B : const_arr := (to_signed(integer(cscale * real(0.750)), ibits),
+    constant B : const_arr := (to_signed(integer(cscale * real(0.750)), ibits),
                              to_signed(integer(cscale * real(0.0)), ibits),
                              to_signed(integer(cscale * real(0.0)), ibits)
                             );
 
-    signal C : const_arr := (to_signed(integer(cscale * real(0.750)), ibits),
+    constant C : const_arr := (to_signed(integer(cscale * real(0.750)), ibits),
                              to_signed(integer(cscale * real(1.0000)), ibits),
                              to_signed(integer(cscale * real(0)), ibits)
                             );
@@ -289,39 +289,38 @@ begin
             if dclkp = '1' and dclkd = '0' then
                 Xs <= signed(X);
             end if;
-
         end if;
     end process;
 
-    process (update)
-    begin
-        if rising_edge(update) then
-            case (addr) is
-                when A1_addr =>
-                    A(1) <= resize(signed(cval), ibits);
-                when A2_addr =>
-                    A(2) <= resize(signed(cval), ibits);
-                when A3_addr =>
-                    A(3) <= resize(signed(cval), ibits);
-                when B1_addr =>
-                    B(1) <= resize(signed(cval), ibits);
-                when B2_addr =>
-                    B(2) <= resize(signed(cval), ibits);
-                when B3_addr =>
-                    B(3) <= resize(signed(cval), ibits);
-                when C1_addr =>
-                    C(1) <= resize(signed(cval), ibits);
-                when C2_addr =>
-                    C(2) <= resize(signed(cval), ibits);
-                when C3_addr =>
-                    C(3) <= resize(signed(cval), ibits);
-                when D12_addr =>
-                    D13 <= resize(signed(cval), ibits);
-                when E21_addr =>
-                    E21 <= resize(signed(cval), ibits);
-                when others =>
+    -- process (update)
+    -- begin
+    --     if rising_edge(update) then
+    --         case (addr) is
+    --             when A1_addr =>
+    --                 A(1) <= resize(signed(cval), ibits);
+    --             when A2_addr =>
+    --                 A(2) <= resize(signed(cval), ibits);
+    --             when A3_addr =>
+    --                 A(3) <= resize(signed(cval), ibits);
+    --             when B1_addr =>
+    --                 B(1) <= resize(signed(cval), ibits);
+    --             when B2_addr =>
+    --                 B(2) <= resize(signed(cval), ibits);
+    --             when B3_addr =>
+    --                 B(3) <= resize(signed(cval), ibits);
+    --             when C1_addr =>
+    --                 C(1) <= resize(signed(cval), ibits);
+    --             when C2_addr =>
+    --                 C(2) <= resize(signed(cval), ibits);
+    --             when C3_addr =>
+    --                 C(3) <= resize(signed(cval), ibits);
+    --             when D12_addr =>
+    --                 D13 <= resize(signed(cval), ibits);
+    --             when E21_addr =>
+    --                 E21 <= resize(signed(cval), ibits);
+    --             when others =>
 
-            end case;
-        end if;
-    end process;
+    --         end case;
+    --     end if;
+    -- end process;
 end architecture;

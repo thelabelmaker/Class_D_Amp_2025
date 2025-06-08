@@ -21,11 +21,11 @@ end entity;
 
 architecture DataFlow of biquad is
     constant ybits : integer := 32;
-    type Y_arr is array (2 downto - 2) of signed(ybits - 1 downto 0);
-    type X_arr is array (2 downto - 2) of signed(X'range);
-    signal pe_in  : Y_arr;
-    signal pe_out : X_arr;
-    signal Y0     : signed(Y'range);
+    type Y_arr is array (3 downto - 3) of signed(ybits - 1 downto 0);
+    type X_arr is array (3 downto - 3) of signed(X'range);
+    signal pe_in  : X_arr;
+    signal pe_out : Y_arr;
+    signal Y0     : signed(ybits - 1 downto 0);
 
     component filter_pe is
         generic (
@@ -46,9 +46,9 @@ architecture DataFlow of biquad is
 begin
 
     pe_in(0) <= signed(X);
-    pe_in(1) <= resize(Y0, X'length);
-    Y0       <= pe_out(- 2) + pe_out(- 1) + pe_out(0) + pe_out(1) + pe_out(2);
-    Y        <= std_logic_vector(pe_in(1)) when rst <= '1' else (others => '0');
+    --  constants stored in Q1.14, need right shift of 14 bits to kill underflow
+    Y0 <= pe_out(- 2) + pe_out(- 1) + pe_out(0) - pe_out(1) - pe_out(2);
+    Y  <= std_logic_vector(pe_in(1)) when rst <= '1' else (others => '0');
 
     filter_pe_x0: filter_pe
         generic map (
@@ -69,23 +69,22 @@ begin
         generic map (
             coefbits => cbits,
             xbits    => X'length,
-            ybits    => Y'length
+            ybits    => ybits
         )
         port map (
-            X    => pe_out(0),
+            X    => Y0(Y0'high downto Y0'high-X'high),
             Xd   => pe_in(1),
-            Y    => pe_out(0),
             coef => coef(0, 0),
             clk  => clk,
             rst  => rst
         );
 
-    filter_pe_loop: for n in 1 to pe_in'high generate
+    filter_pe_loop: for n in 1 to 2 generate
         filter_pe_pn: filter_pe
             generic map (
                 coefbits => cbits,
                 xbits    => X'length,
-                ybits    => Y'length
+                ybits    => ybits
             )
             port map (
                 X    => pe_in(- 1 * n),
@@ -100,12 +99,12 @@ begin
             generic map (
                 coefbits => cbits,
                 xbits    => X'length,
-                ybits    => Y'length
+                ybits    => ybits
             )
             port map (
                 X    => pe_in(n),
-                Xd   => pe_in(- 1 * (n + 1)),
-                Y    => pe_out(- 1 * n),
+                Xd   => pe_in((n + 1)),
+                Y    => pe_out(n),
                 coef => coef(n, 0),
                 clk  => clk,
                 rst  => rst

@@ -25,10 +25,7 @@ use work.crossover_coef.all;
 
 library IEEE;
     use IEEE.STD_LOGIC_1164.all;
-
-    -- Uncomment the following library declaration if using
-    -- arithmetic functions with Signed or Unsigned values
-    --use IEEE.NUMERIC_STD.ALL;
+    use IEEE.NUMERIC_STD.ALL;
 
     -- Uncomment the following library declaration if instantiating
     -- any Xilinx leaf cells in this code.
@@ -63,6 +60,10 @@ architecture Behavioral of crossover_interconnect is
             rst  : in  std_logic
         );
     end component;
+
+    signal sclk_div :   unsigned((WS_B) downto 0);
+    signal sclk_div_s :   unsigned((WS_B) downto 0);
+    signal filt_clk :   std_logic;
     
     signal AUD_HPF_MID_X_L: std_logic_vector(AUD_IN_L'range);
     signal AUD_HPF_MID_X_R: std_logic_vector(AUD_IN_R'range);
@@ -72,6 +73,15 @@ architecture Behavioral of crossover_interconnect is
 
     signal AUD_IN_L_SYNC: std_logic_vector(AUD_IN_L'range);
     signal AUD_IN_R_SYNC: std_logic_vector(AUD_IN_R'range);
+
+    signal AUD_IN_L_HOLD: std_logic_vector(AUD_IN_L'range);
+    signal AUD_IN_R_HOLD: std_logic_vector(AUD_IN_R'range);
+
+    signal LPF_R_A : std_logic_vector(AUD_IN_R'range);
+    signal LPF_L_A : std_logic_vector(AUD_IN_R'range);
+
+    signal HPF_R_A : std_logic_vector(AUD_IN_R'range);
+    signal HPF_L_A : std_logic_vector(AUD_IN_R'range);
 
     signal ldrdyd: std_logic;
     signal rdrdyd : std_logic;
@@ -85,7 +95,7 @@ begin
         X    => AUD_IN_L_SYNC,
         Y    => AUD_HPF_MID_X_L,
         coef => hpf_crossover_coef_arr(0),
-        clk  => clk,
+        clk  => filt_clk,
         rst  => rst
     );
 
@@ -95,9 +105,9 @@ begin
     )
     port map (
         X    => AUD_HPF_MID_X_L,
-        Y    => HPF_L,
+        Y    => HPF_L_A,
         coef => hpf_crossover_coef_arr(1),
-        clk  => clk,
+        clk  => filt_clk,
         rst  => rst
     );
 
@@ -109,7 +119,7 @@ begin
         X    => AUD_IN_R_SYNC,
         Y    => AUD_HPF_MID_X_R,
         coef => hpf_crossover_coef_arr(0),
-        clk  => clk,
+        clk  => filt_clk,
         rst  => rst
     );
 
@@ -119,9 +129,9 @@ begin
     )
     port map (
         X    => AUD_HPF_MID_X_R,
-        Y    => HPF_R,
+        Y    => HPF_R_A,
         coef => hpf_crossover_coef_arr(1),
-        clk  => clk,
+        clk  => filt_clk,
         rst  => rst
     );
 
@@ -135,7 +145,7 @@ begin
         X    => AUD_IN_L_SYNC,
         Y    => AUD_LPF_MID_X_L,
         coef => lpf_crossover_coef_arr(0),
-        clk  => clk,
+        clk  => filt_clk,
         rst  => rst
     );
 
@@ -145,9 +155,9 @@ begin
     )
     port map (
         X    => AUD_LPF_MID_X_L,
-        Y    => LPF_L,
+        Y    => LPF_L_A,
         coef => lpf_crossover_coef_arr(1),
-        clk  => clk,
+        clk  => filt_clk,
         rst  => rst
     );
 
@@ -159,7 +169,7 @@ begin
         X    => AUD_IN_R_SYNC,
         Y    => AUD_LPF_MID_X_R,
         coef => lpf_crossover_coef_arr(0),
-        clk  => clk,
+        clk  => filt_clk,
         rst  => rst
     );
 
@@ -169,27 +179,45 @@ begin
     )
     port map (
         X    => AUD_LPF_MID_X_R,
-        Y    => LPF_R,
+        Y    => LPF_R_A,
         coef => lpf_crossover_coef_arr(1),
-        clk  => clk,
+        clk  => filt_clk,
         rst  => rst
     );
 
+    sclk_div <= sclk_div_s when RST = '1' else (others => '0');
+    filt_clk <= sclk_div(sclk_div'high);
+
     process(CLK) begin
         if rising_edge(CLK) then
-            ldrdyd <= L_RDY;
-            rdrdyd <= R_RDY;
-            if rdrdyd and R_RDY then
-                AUD_IN_R_SYNC <= AUD_IN_R;
+            sclk_div_s <=   sclk_div + 1;
+            ldrdyd <= L_READ;
+            rdrdyd <= R_READ;
+            L_RDY <=    sclk_div_s(sclk_div_s'high) xnor sclk_div_s(sclk_div_s'high-1);
+            R_RDY <=    sclk_div_s(sclk_div_s'high) xnor sclk_div_s(sclk_div_s'high-1);
+            if rdrdyd='0' and R_READ='1' then
+                AUD_IN_R_HOLD <= AUD_IN_R;
             else
-                AUD_IN_R_SYNC <= AUD_IN_R_SYNC;
+                AUD_IN_R_HOLD <= AUD_IN_R_HOLD;
             end if; 
             
-            if ldrdyd and L_RDY then
-                AUD_IN_L_SYNC <= AUD_IN_L;
+            if ldrdyd='0' and L_READ='1' then
+                AUD_IN_L_HOLD <= AUD_IN_L;
             else
-                AUD_IN_L_SYNC <= AUD_IN_L_SYNC;
+                AUD_IN_L_HOLD <= AUD_IN_L_HOLD;
             end if; 
+        end if;
+    end process;
+
+    process(filt_clk) begin
+        if rising_edge(filt_clk) then
+            AUD_IN_L_SYNC   <=  AUD_IN_L_HOLD;
+            AUD_IN_R_SYNC   <=  AUD_IN_R_HOLD;
+            HPF_L   <=  HPF_L_A;
+            HPF_R   <=  HPF_R_A;
+
+            LPF_L   <=  LPF_L_A;
+            LPF_R   <=  LPF_R_A;
         end if;
     end process;
 
