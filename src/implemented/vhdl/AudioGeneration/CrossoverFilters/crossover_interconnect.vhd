@@ -77,6 +77,10 @@ architecture Behavioral of crossover_interconnect is
     signal AUD_IN_L_HOLD: std_logic_vector(AUD_IN_L'range);
     signal AUD_IN_R_HOLD: std_logic_vector(AUD_IN_R'range);
 
+    signal AUD_IN_L_D: std_logic_vector(AUD_IN_L'range);
+    signal AUD_IN_R_D: std_logic_vector(AUD_IN_R'range);
+
+
     signal LPF_R_A : std_logic_vector(AUD_IN_R'range);
     signal LPF_L_A : std_logic_vector(AUD_IN_R'range);
 
@@ -91,10 +95,13 @@ architecture Behavioral of crossover_interconnect is
 
     signal ldrdyd: std_logic;
     signal rdrdyd : std_logic;
+
+    constant ZERO: std_logic_vector(AUD_IN_L'range) := (others => '0');
     
     --  0 = crossover filter disabled, 1 = enabled
     constant filt_en: std_logic := '0';
 begin
+    filt_clk <= clk;
     biquad_l_1_hpf : biquad
     generic map (
         xbits => AUD_IN_L'length
@@ -193,16 +200,22 @@ begin
         rst  => rst
     );
 
-    sclk_div <= sclk_div_s when RST = '1' else (others => '0');
-    filt_clk <= sclk_div(sclk_div'high);
-
+--    sclk_div <= sclk_div_s when RST = '1' else (others => '0');
+--    filt_clk <= sclk_div(sclk_div'high);
+    
+    
+    
     process(CLK) begin
         if rising_edge(CLK) then
             sclk_div_s <=   sclk_div + 1;
             ldrdyd <= L_READ;
             rdrdyd <= R_READ;
-            L_RDY <=    sclk_div_s(sclk_div_s'high) xnor sclk_div_s(sclk_div_s'high-1);
-            R_RDY <=    sclk_div_s(sclk_div_s'high) xnor sclk_div_s(sclk_div_s'high-1);
+            --L_RDY <=    sclk_div_s(sclk_div_s'high) xnor sclk_div_s(sclk_div_s'high-1);
+            --R_RDY <=    sclk_div_s(sclk_div_s'high) xnor sclk_div_s(sclk_div_s'high-1);
+            
+            R_RDY   <=  '1';
+            L_RDY   <=  '1';
+            
             if rdrdyd='0' and R_READ='1' then
                 AUD_IN_R_HOLD <= AUD_IN_R;
             else
@@ -214,29 +227,73 @@ begin
             else
                 AUD_IN_L_HOLD <= AUD_IN_L_HOLD;
             end if; 
-            HPF_L   <=  HPF_L_S;
-            HPF_R   <=  HPF_R_S;
-            LPF_L   <=  LPF_L_S;
-            LPF_R   <=  LPF_R_S;
+            
+            -- HPF_L   <=  HPF_L_S;
+            -- HPF_R   <=  HPF_R_S;
+            -- LPF_L   <=  LPF_L_S;
+            -- LPF_R   <=  LPF_R_S;
+
+            HPF_L   <=  AUD_IN_L_SYNC;
+            HPF_R   <=  AUD_IN_R_SYNC;
+            LPF_L   <=  AUD_IN_L_SYNC;
+            LPF_R   <=  AUD_IN_R_SYNC;
+            
+            AUD_IN_L_SYNC   <=  AUD_IN_L_HOLD;
+            AUD_IN_R_SYNC   <=  AUD_IN_R_HOLD;
+            
         end if;
     end process;
 
-    process(filt_clk) begin
-        if rising_edge(filt_clk) then
-            AUD_IN_L_SYNC   <=  AUD_IN_L_HOLD;
-            AUD_IN_R_SYNC   <=  AUD_IN_R_HOLD;
-            if filt_en = '1' then
-                HPF_L_S   <=  HPF_L_A;
-                HPF_R_S   <=  HPF_R_A;
-                LPF_L_S   <=  LPF_L_A;
-                LPF_R_S   <=  LPF_R_A;
-            else
-                HPF_L_S   <=  AUD_IN_L_SYNC;
-                HPF_R_S   <=  AUD_IN_R_SYNC;
-                LPF_L_S   <=  AUD_IN_L_SYNC;
-                LPF_R_S   <=  AUD_IN_R_SYNC;
-            end if;
-        end if;
-    end process;
+--    process(CLK) begin
+--        if rising_edge(CLK) then
+--            sclk_div_s <=   sclk_div + 1;
+--            ldrdyd <= L_READ;
+--            rdrdyd <= R_READ;
+--            L_RDY <=    sclk_div_s(sclk_div_s'high) xnor sclk_div_s(sclk_div_s'high-1);
+--            R_RDY <=    sclk_div_s(sclk_div_s'high) xnor sclk_div_s(sclk_div_s'high-1);
+            
+--            if rdrdyd='0' and R_READ='1' then
+--                AUD_IN_R_HOLD <= AUD_IN_R;
+--            else
+--                AUD_IN_R_HOLD <= AUD_IN_R_HOLD;
+--            end if; 
+            
+--            if ldrdyd='0' and L_READ='1' then
+--                AUD_IN_L_HOLD <= AUD_IN_L;
+--            else
+--                AUD_IN_L_HOLD <= AUD_IN_L_HOLD;
+--            end if; 
+--            HPF_L   <=  HPF_L_S;
+--            HPF_R   <=  HPF_R_S;
+--            LPF_L   <=  LPF_L_S;
+--            LPF_R   <=  LPF_R_S;
+--            AUD_IN_L_SYNC   <=  AUD_IN_L_HOLD;
+--            AUD_IN_R_SYNC   <=  AUD_IN_R_HOLD;
+--        end if;
+--    end process;
+
+--    process(filt_clk) begin
+--        if rising_edge(filt_clk) then
+--            if (AUD_IN_L_HOLD = ZERO) or (AUD_IN_R_HOLD = ZERO) then
+--                AUD_IN_L_SYNC   <=  AUD_IN_L_D;
+--                AUD_IN_R_SYNC   <=  AUD_IN_R_D;
+--            else
+--                AUD_IN_L_SYNC   <=  AUD_IN_L_HOLD;
+--                AUD_IN_R_SYNC   <=  AUD_IN_R_HOLD;
+--            end if;            
+
+--            if filt_en = '1' then
+--                HPF_L_S   <=  HPF_L_A;
+--                HPF_R_S   <=  HPF_R_A;
+--                LPF_L_S   <=  LPF_L_A;
+--                LPF_R_S   <=  LPF_R_A;
+--            else
+--                HPF_L_S   <=  AUD_IN_L_SYNC;
+--                HPF_R_S   <=  AUD_IN_R_SYNC;
+--                LPF_L_S   <=  AUD_IN_L_SYNC;
+--                LPF_R_S   <=  AUD_IN_R_SYNC;
+--            end if;
+--        end if;
+--    end process;
 
 end architecture;

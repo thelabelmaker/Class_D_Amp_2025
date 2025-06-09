@@ -74,6 +74,7 @@ architecture Behavioral of Quantizer_Interconnect is
     signal SDCLK_L : std_logic;
     signal SDCLK_R : std_logic;
 
+
     signal QUANT_L : std_logic;
     signal QUANT_R : std_logic;
 

@@ -32,9 +32,9 @@ library work;
 
 entity top_interconnect is
     port (SD            : in    STD_LOGIC;
-          WS            : out   STD_LOGIC;
-          BCK           : out   STD_LOGIC;
-          --MCLK          : out   STD_LOGIC;
+          WS            : in   STD_LOGIC;
+          BCK           : in   STD_LOGIC;
+          --MCLK          : in   STD_LOGIC;
           SDA           : inout STD_LOGIC;
           SCL           : in    STD_LOGIC;
 
@@ -48,8 +48,11 @@ entity top_interconnect is
           AUD_LPF_R_NEG : out   STD_LOGIC;
           AUD_LPF_L_NEG : out   STD_LOGIC;
 
-          CLK_100       : in    STD_LOGIC;
-          RST           : in    STD_LOGIC);
+          --CLK_100       : in    STD_LOGIC;
+          CLK           : in    std_logic;
+          RST           : in    STD_LOGIC;
+          STATUS_LED    : out   std_logic_vector(7 downto 0);
+          mod_mode      : in    std_logic);
 end entity;
 
 architecture Behavioral of top_interconnect is
@@ -57,8 +60,8 @@ architecture Behavioral of top_interconnect is
         port (CLK   : in  STD_LOGIC;
               RST   : in  STD_LOGIC;
               DI    : in  STD_LOGIC;
-              BCK   : out STD_LOGIC;
-              WS    : out STD_LOGIC;
+              BCK   : in STD_LOGIC;
+              WS    : in STD_LOGIC;
               L_RDY : out STD_LOGIC;
               R_RDY : out STD_LOGIC;
               DO_L  : out STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
@@ -86,29 +89,29 @@ architecture Behavioral of top_interconnect is
             RST       : in  STD_LOGIC);
     end component;
 
-    component I2C_interconnect is
-        port (
-            SDA    : inout std_logic;
-            SCL    : in   std_logic;
-            dout   : out   std_logic_vector(31 downto 0);
-            addr   : out   std_logic_vector(7 downto 0);
-            update : out   std_logic;
+--    component I2C_interconnect is
+--        port (
+--            SDA    : inout std_logic;
+--            SCL    : in   std_logic;
+--            dout   : out   std_logic_vector(31 downto 0);
+--            addr   : out   std_logic_vector(7 downto 0);
+--            update : out   std_logic;
 
-            clk    : in    std_logic;
-            rst    : in    std_logic
-        );
+--            clk    : in    std_logic;
+--            rst    : in    std_logic
+--        );
 
-    end component;
+--    end component;
 
-    component CLK_SOLO_wrapper is
-        port (
-            CLK     : out STD_LOGIC;
-            CLK_100 : in  STD_LOGIC;
-            RST     : in  STD_LOGIC
-        );
-    end component;
+--    component CLK_SOLO_wrapper is
+--        port (
+--            CLK     : out STD_LOGIC;
+--            CLK_100 : in  STD_LOGIC;
+--            RST     : in  STD_LOGIC
+--        );
+--    end component;
 
-    signal CLK       : std_logic;
+    --signal CLK       : std_logic;
     signal i2s_l_rdy : std_logic;
     signal i2s_r_rdy : std_logic;
 
@@ -149,16 +152,16 @@ architecture Behavioral of top_interconnect is
     signal i2c_ao : std_logic_vector(7 downto 0);
 
     -- 0 for AD modulation, 1 for BD
-    constant mod_mode : std_logic := '0';
+    --constant mod_mode : std_logic := '1';
 
 begin
 
-    pll: CLK_SOLO_wrapper
-        port map (
-            CLK_100 => CLK_100,
-            CLK     => CLK,
-            RST     => RST
-        );
+    -- pll: CLK_SOLO_wrapper
+    --     port map (
+    --         CLK_100 => CLK_100,
+    --         CLK     => CLK,
+    --         RST     => RST
+    --     );
 
     i2s_controller: I2S_interconnect
         port map (
@@ -179,16 +182,16 @@ begin
     in_l_neg <= std_logic_vector(resize(- 1 * signed(i2s_dl), AUD_B));
     in_r_neg <= std_logic_vector(resize(- 1 * signed(i2s_dr), AUD_B));
 
-    i2c_mgr: I2C_interconnect
-        port map (
-            SDA    => SDA,
-            SCL    => SCL,
-            dout   => i2c_do,
-            addr   => i2c_ao,
-            update => update,
-            clk    => clk,
-            rst    => rst
-        );
+--    i2c_mgr: I2C_interconnect
+--        port map (
+--            SDA    => SDA,
+--            SCL    => SCL,
+--            dout   => i2c_do,
+--            addr   => i2c_ao,
+--            update => update,
+--            clk    => clk,
+--            rst    => rst
+--        );
 
     audio_pos: audio_interconnect
         port map (
@@ -228,6 +231,10 @@ begin
     hpf_l_neg_ad <= not hpf_l_pos_xd;
     lpf_r_neg_ad <= not lpf_r_pos_xd;
     lpf_l_neg_ad <= not lpf_l_pos_xd;
+
+    led_loop : for l in STATUS_LED'range generate
+        STATUS_LED(l) <= '1' when resize(unsigned(abs(signed(I2S_DL(I2S_DL'high downto 1)) + signed(I2S_DR(I2S_DR'high downto 1)))), STATUS_LED'length) > to_unsigned(2**(STATUS_LED'length) - 2**(l) - 1, STATUS_LED'length) else '0';
+    end generate;
 
     process (CLK)
     begin

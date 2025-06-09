@@ -5,10 +5,10 @@ use IEEE.NUMERIC_STD.ALL;
 USE IEEE.MATH_REAL.all;
 
 package I2S_constants is 
-    constant    sample_rate :   integer :=  44100;  --  sample rate of audio
-    constant    MCLK_freq   :   integer :=  22579200;
+    constant    sample_rate :   integer :=  192000;  --  sample rate of audio
+    constant    MCLK_freq   :   integer :=  integer(24.576e6);
     constant    MCLK_T      :   time    :=  (1.0e12/real(MCLK_freq)) * (1 ps);
-    constant    AUD_B       :   integer :=  16;
+    constant    AUD_B       :   integer :=  24;
     constant    BCLK_ratio  :   integer :=  
     integer(MCLK_freq / (2*sample_rate*AUD_B));
     constant    DIV_B       :   integer :=  integer(log2(real(BCLK_ratio)));

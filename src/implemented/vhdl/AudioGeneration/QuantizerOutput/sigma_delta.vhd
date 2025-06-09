@@ -104,17 +104,17 @@ architecture DataFlow of SigmaDelta is
 
     -- constant E21 : signed((ibits - 1) downto 0) := to_signed(integer(cscale *
     -- real(- 0.020)), ibits);
-    constant A : const_arr := (to_signed(integer(cscale * real(-0.750)), ibits),
-                             to_signed(integer(cscale * real(-1.250)), ibits),
+    constant A : const_arr := (to_signed(integer(cscale * real(-2.0/3.0)), ibits),
+                             to_signed(integer(cscale * real(-1.000)), ibits),
                              to_signed(integer(cscale * real(0.0)), ibits)
                             );
 
-    constant B : const_arr := (to_signed(integer(cscale * real(0.750)), ibits),
-                             to_signed(integer(cscale * real(0.0)), ibits),
+    constant B : const_arr := (to_signed(integer(cscale * real(2.0/3.0)), ibits),
+                             to_signed(integer(cscale * real(1.0)), ibits),
                              to_signed(integer(cscale * real(0.0)), ibits)
                             );
 
-    constant C : const_arr := (to_signed(integer(cscale * real(0.750)), ibits),
+    constant C : const_arr := (to_signed(integer(cscale * real(1.0/2.0)), ibits),
                              to_signed(integer(cscale * real(1.0000)), ibits),
                              to_signed(integer(cscale * real(0)), ibits)
                             );
@@ -286,9 +286,9 @@ begin
 
             dclkd <= dclk;
             dclkp <= dclkd xor dclk;
-            if dclkp = '1' and dclkd = '0' then
+--            if dclkp = '1' and dclkd = '0' then
                 Xs <= signed(X);
-            end if;
+--            end if;
         end if;
     end process;
 
