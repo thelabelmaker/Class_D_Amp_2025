@@ -82,86 +82,48 @@ architecture DataFlow of SigmaDelta is
 
     constant cscale : real := 2.0 ** (X'length - 1);
 
-    type const_arr is array (1 to 3) of signed((ibits - 1) downto 0);
+    type param_arr  is array(1 to 5) of signed((ibits-1) downto 0);
 
+    type mult_arr   is array(1 to 5) of signed((2*ibits-1) downto 0);
     -- coefficents for 5 bit modulator, 16x OSR
-    -- constant A : const_arr := (to_signed(integer(cscale * real(- 2.0 / 3.0)), ibits),
-    --                            to_signed(integer(cscale * real(- 1.250)), ibits),
-    --                            to_signed(integer(cscale * real(0.0)), ibits)
-    --                           );
+    constant A : param_arr := 
+            (   to_signed(integer(cscale*real(-0.0625)), ibits), 
+                to_signed(integer(cscale*real(-0.125)), ibits),
+                to_signed(integer(cscale*real(-0.25)), ibits),
+                to_signed(integer(cscale*real(-0.5)), ibits),
+                to_signed(integer(cscale*real(-0.0)), ibits)
+            );
 
-    -- constant B : const_arr := (to_signed(integer(cscale * real(2.0 / 3.0)), ibits),
-    --                            to_signed(integer(cscale * real(0.0)), ibits),
-    --                            to_signed(integer(cscale * real(0.0)), ibits)
-    --                           );
+    constant B : param_arr := 
+            (   to_signed(integer(cscale*real(0.0625)), ibits),
+                to_signed(integer(cscale*real(0)), ibits),
+                to_signed(integer(cscale*real(0)), ibits),
+                to_signed(integer(cscale*real(0)), ibits),
+                to_signed(integer(cscale*real(0)), ibits)
+            );
+            
+    constant C : param_arr := 
+            (   to_signed(integer(cscale*real(0.0625)), ibits), 
+                to_signed(integer(cscale*real(0.125)), ibits),
+                to_signed(integer(cscale*real(0.25)), ibits),
+                to_signed(integer(cscale*real(1.0)), ibits),
+                to_signed(integer(cscale*real(0)), ibits)
+            );
 
-    -- constant C : const_arr := (to_signed(integer(cscale * real(0.8500)), ibits),
-    --                            to_signed(integer(cscale * real(1.0000)), ibits),
-    --                            to_signed(integer(cscale * real(0)), ibits)
-    --                           );
+    constant D21    : signed((ibits-1) downto 0) := 
+        to_signed(integer(cscale*real(-0.03125)), ibits);
 
-    -- constant D13 : signed((ibits - 1) downto 0) := to_signed(integer(cscale * real(0.000)), ibits);
-
-    -- constant E21 : signed((ibits - 1) downto 0) := to_signed(integer(cscale *
-    -- real(- 0.020)), ibits);
-    constant A : const_arr := (to_signed(integer(cscale * real(-2.0/3.0)), ibits),
-                             to_signed(integer(cscale * real(-1.000)), ibits),
-                             to_signed(integer(cscale * real(0.0)), ibits)
-                            );
-
-    constant B : const_arr := (to_signed(integer(cscale * real(2.0/3.0)), ibits),
-                             to_signed(integer(cscale * real(1.0)), ibits),
-                             to_signed(integer(cscale * real(0.0)), ibits)
-                            );
-
-    constant C : const_arr := (to_signed(integer(cscale * real(1.0/2.0)), ibits),
-                             to_signed(integer(cscale * real(1.0000)), ibits),
-                             to_signed(integer(cscale * real(0)), ibits)
-                            );
-
-    signal D13 : signed((ibits - 1) downto 0) := to_signed(integer(cscale * real(0.000)), ibits);
-
-    signal E21 : signed((ibits - 1) downto 0) := to_signed(integer(cscale * real(0.000)), ibits);
-
-    --  3 bit modulator, 64x OSR
-    -- constant A : const_arr := 
-    --         (   to_signed(integer(cscale*real(-1.6258)), ibits), 
-    --             to_signed(integer(cscale*real(0)), ibits),
-    --             to_signed(integer(cscale*real(0)), ibits)
-    --         );
-
-    -- constant B : const_arr := 
-    --         (   to_signed(integer(cscale*real(1.62580)), ibits), 
-    --             to_signed(integer(cscale*real(0.0)), ibits),
-    --             to_signed(integer(cscale*real(0.0)), ibits)
-    --         );
-
-    -- constant C : const_arr := 
-    --         (   to_signed(integer(cscale*real(0.98180)), ibits), 
-    --             to_signed(integer(cscale*real(1.0000)), ibits),
-    --             to_signed(integer(cscale*real(1)), ibits)
-    --         );
-
-    -- constant D13    : signed((ibits-1) downto 0) := 
-    --     to_signed(integer(cscale*real(1.27850)), ibits);
-
-    -- constant E21    : signed((ibits-1) downto 0) := 
-    --     to_signed(integer(cscale*real(-0.0010)), ibits);
+    constant D42    : signed((ibits-1) downto 0) := 
+        to_signed(integer(cscale*real(-0.03125/2)), ibits);
 
     --  error from difference
-    signal E1  : signed((ibits - 1) downto 0)     := (others => '0');
-    signal E2  : signed((ibits - 1) downto 0)     := (others => '0');
-    signal E1l : signed((2 * ibits - 1) downto 0) := (others => '0');
-    signal E2l : signed((2 * ibits - 1) downto 0) := (others => '0');
+    signal      E		:	param_arr;
+    signal      El      :   mult_arr;
+    signal      S		:	param_arr;
 
     --  sum of integrations
-    signal S1  : signed((ibits - 1) downto 0) := (others => '0');
-    signal S2  : signed((ibits - 1) downto 0) := (others => '0');
-    signal S2d : signed((ibits - 1) downto 0) := (others => '0');
-    signal S1d : signed((ibits - 1) downto 0) := (others => '0');
-
-    signal X1 : signed((ibits - 1) downto 0) := (others => '0');
-    signal X2 : signed((ibits - 1) downto 0) := (others => '0');
+    signal      S2d      :	signed((ibits-1) downto 0)  :=  (others => '0');
+    signal      S4d     :	signed((ibits-1) downto 0)  :=  (others => '0');
 
     --  padding bits to sign extend inputs
     signal padBHX : signed((ibits - 1) downto X'length) := (others => '0');
@@ -238,31 +200,42 @@ begin
     -- Ye(X'high-Y'length downto 0)        <=  (others => not Y(Y'high));
 
     --  map components together
-    int_1: sigma
-        generic map (nbits => ibits)
-        port map (
-            --E1(E1'high) & E1(E1'high-ebits-1 downto X'length), S1, clk
-            E => E1, S => S1, clk => clk
-        );
+    int_1   :   sigma generic map(nbits => ibits)
+                port map(
+                    E(1), S(1), clk
+                );
 
-    int_2: sigma
-        generic map (nbits => ibits)
-        port map (
-            --E2(E2'high) & E2(E2'high-ebits-1 downto X'length), S2, clk
-            E => E2, S => S2, clk => clk
-        );
+    int_2   :   sigma generic map(nbits => ibits)
+                port map(
+                    E(2), S(2), clk
+                );
+    
+    int_3   :   sigma generic map(nbits => ibits)
+                port map(
+                    E(3), S(3), clk
+                );
 
+    int_4   :   sigma generic map(nbits => ibits)
+                port map(
+                    E(4), S(4), clk
+                );
+    
     -- E1 <= resize((Xe*B(1) + Ye*A(1)) sra (X'length-1), ibits);
     -- E2 <= resize((Xe*B(2) + Ye*A(2) + S1*C(1)) sra (X'length-1), ibits);
     -- Yp <= resize((Xe*B(3) + Ye*A(3) + S2*C(2) + S1*D13) sra ((X'length-1)),
     --         ibits);
-    E1l <= (Xe * B(1) + Ye * A(1) + E21 * S2d);
-    E2l <= (Xe * B(2) + Ye * A(2) + S1 * C(1));
+    El(1) <= Xe*B(1) + Ye*A(1) + S2d*D21;
+    El(2) <= Xe*B(2) + Ye*A(2) + S(1)*C(1);
+    El(3) <= Xe*B(3) + Ye*A(3) + S(2)*C(2) + S4d*D42;
+    El(4) <= Xe*B(4) + Ye*A(4) + S(3)*C(3);
+    Ypl   <= Xe*B(5) + Ye*A(5) + S(4)*C(4);
     --E1  <= E1l(E1l'high) & E1l(E1l'high-ebits-1 downto X'length);
     --E2  <= E2l(E2l'high) & E2l(E2l'high-ebits-1 downto X'length);
-    E1  <= resize(shift_right(E1l, X'high), ibits);
-    E2  <= resize(shift_right(E2l, X'high), ibits);
-    Ypl <= (Xe * B(3) + Ye * A(3) + S2 * C(2) + S1d * D13);
+
+    flow: for ind in El'range generate
+        E(ind)  <= resize(shift_right(El(ind), X'high), ibits);
+    end generate;
+
     Yp  <= resize(shift_right(Ypl, X'high), ibits);
 
     --Yp  <= Ypl(Ypl'high) & Ypl(Ypl'high-ebits-1 downto X'length);
@@ -281,12 +254,12 @@ begin
             --  Y   <=  std_logic_vector(Yp((Yp'high-X'length) downto
             --  (Yp'length-X'length-Y'length)));
             --Y   <=  std_logic_vector(resize(Yp, Y'length));
-            S2d <= S2;
-            S1d <= S1;
+            S4d <= S(4);
+            S2d <= S(2);
 
             dclkd <= dclk;
             dclkp <= dclkd xor dclk;
---            if dclkp = '1' and dclkd = '0' then
+--              if dclkp = '1' and dclkd = '0' then
                 Xs <= signed(X);
 --            end if;
         end if;

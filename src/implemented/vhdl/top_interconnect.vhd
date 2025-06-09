@@ -152,7 +152,7 @@ architecture Behavioral of top_interconnect is
     signal i2c_ao : std_logic_vector(7 downto 0);
 
     -- 0 for AD modulation, 1 for BD
-    constant mod_mode : std_logic := '0';
+    constant mod_mode : std_logic := '1';
 
 begin
 
