@@ -51,8 +51,8 @@ entity top_interconnect is
           --CLK_100       : in    STD_LOGIC;
           CLK           : in    std_logic;
           RST           : in    STD_LOGIC;
-          STATUS_LED    : out   std_logic_vector(7 downto 0);
-          mod_mode      : in    std_logic);
+          STATUS_LED    : out   std_logic_vector(7 downto 0));
+          --mod_mode      : in    std_logic);
 end entity;
 
 architecture Behavioral of top_interconnect is
@@ -152,7 +152,7 @@ architecture Behavioral of top_interconnect is
     signal i2c_ao : std_logic_vector(7 downto 0);
 
     -- 0 for AD modulation, 1 for BD
-    --constant mod_mode : std_logic := '1';
+    constant mod_mode : std_logic := '0';
 
 begin
 
