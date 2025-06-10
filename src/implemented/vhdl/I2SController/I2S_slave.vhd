@@ -95,6 +95,7 @@ architecture DataFlow of I2S_slave is
 
     begin
     
+    --d_temp_l <= (others => '0')
     ind <=  to_integer(cnt);
     wsp <= wsd xor WS;
     

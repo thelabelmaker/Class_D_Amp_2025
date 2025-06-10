@@ -49,6 +49,8 @@ end entity;
 
 architecture Behavioral of Quantizer_Interconnect is
 
+
+
     component SigmaDelta is
         generic (nbits : integer := 8; outb : integer := 8);
         port (
@@ -70,21 +72,37 @@ architecture Behavioral of Quantizer_Interconnect is
               EN    : out STD_LOGIC;
               RST   : in  STD_LOGIC);
     end component;
+    
+      component faster_clk_wrapper is
+  port (
+    CLK_24p576 : in STD_LOGIC;
+    RST : in STD_LOGIC;
+    SDCK : out STD_LOGIC
+  );
+  end component;
+
 
     signal SDCLK_L : std_logic;
     signal SDCLK_R : std_logic;
 
-
+    signal SDCK    : std_logic;
     signal QUANT_L : std_logic;
     signal QUANT_R : std_logic;
 
 begin
+--pll: faster_clk_wrapper
+--        port map (
+--             CLK_24p576 => CLK,
+--             SDCK     => SDCK,
+--             RST     => RST
+--         );
+    SDCK <= CLK;
     quantizer_l: SigmaDelta
         generic map (AUD_B, PWM_B)
         port map (
             X      => DI_L,
             Y      => QUANT_L,
-            clk    => CLK,
+            clk    => SDCK,
             update => update,
             addr   => addr,
             cval   => cval,
@@ -96,7 +114,7 @@ begin
         port map (
             X      => DI_R,
             Y      => QUANT_R,
-            clk    => CLK,
+            clk    => SDCK,
             update => update,
             addr   => addr,
             cval   => cval,
@@ -107,7 +125,7 @@ begin
     --QUANT_R <= DI_R(DI_L'high downto DI_L'length-PWM_B);
     pwm_output_l: PWM_output
         port map (
-            SCLK  => CLK,
+            SCLK  => SDCK,
             DCLK  => L_READ,
             DIN   => QUANT_L,
             EN    => EN_L,
@@ -116,7 +134,7 @@ begin
 
     pwm_output_r: PWM_output
         port map (
-            SCLK  => CLK,
+            SCLK  => SDCK,
             DCLK  => R_READ,
             DIN   => QUANT_R,
             EN    => EN_R,

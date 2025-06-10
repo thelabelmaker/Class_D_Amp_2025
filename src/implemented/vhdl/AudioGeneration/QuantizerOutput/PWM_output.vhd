@@ -41,10 +41,10 @@ end PWM_output;
 
 architecture Behavioral of PWM_output is
 
-    signal cntr :   unsigned((PWM_B-1) downto 0) := (others => '0');
+    signal cntr :   unsigned((ACC_B-1) downto 0) := (others => '0');
     signal dsync:   unsigned((PWM_B-1) downto 0);
-    signal dacc: unsigned((PWM_B-1) downto 0);
-    constant CMAX: unsigned((PWM_B-1) downto 0) := (others => '1');
+    signal dacc: unsigned((ACC_B-1) downto 0);
+    constant CMAX: unsigned((ACC_B-1) downto 0) := (others => '1');
     signal dclkd:   std_logic;
     signal dclkp:   std_logic;
     
@@ -60,8 +60,8 @@ begin
             if rising_edge(SCLK) then
                 SDCLK    <=  cntr(cntr'high);
                 if cntr = CMAX then
-                    dsync   <=  dacc;
-                    dacc(dacc'high downto 1)    <=  (others => '0');
+                    dsync   <=  dacc(dacc'high downto (ACC_B-PWM_B));
+                    dacc(dacc'high downto 0)    <=  (others => '0');
                     dacc(0) <=  DIN;
                 elsif DIN = '0' then
                     dacc <= dacc + 1;
@@ -69,7 +69,7 @@ begin
                     dacc <= dacc;    
                 end if;
                     
-                if cntr < dsync(dsync'high downto (dsync'high-cntr'length+1)) then 
+                if cntr(cntr'high downto (ACC_B-PWM_B)) < dsync then 
                     EN  <=  '1';
                 else 
                     EN  <=  '0';

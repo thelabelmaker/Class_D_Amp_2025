@@ -67,6 +67,8 @@ architecture Behavioral of top_interconnect is
               DO_L  : out STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
               DO_R  : out STD_LOGIC_VECTOR((AUD_B - 1) downto 0));
     end component;
+    
+
 
     component audio_interconnect is
         port (
@@ -111,7 +113,7 @@ architecture Behavioral of top_interconnect is
 --        );
 --    end component;
 
-    --signal CLK       : std_logic;
+    signal SDCK       : std_logic;
     signal i2s_l_rdy : std_logic;
     signal i2s_r_rdy : std_logic;
 
@@ -156,12 +158,7 @@ architecture Behavioral of top_interconnect is
 
 begin
 
-    -- pll: CLK_SOLO_wrapper
-    --     port map (
-    --         CLK_100 => CLK_100,
-    --         CLK     => CLK,
-    --         RST     => RST
-    --     );
+    
 
     i2s_controller: I2S_interconnect
         port map (
