@@ -17,4 +17,5 @@ package I2S_constants is
     constant    PWM_B       :   integer :=  6;
     constant    ACC_B       :   integer :=  6;
     constant    SD_ratio    :   integer :=  2**PWM_B;
+    constant    CO_B        :   integer := 24;
 end package I2S_constants;

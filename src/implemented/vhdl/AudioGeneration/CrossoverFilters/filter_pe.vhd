@@ -24,7 +24,7 @@ end entity;
         signal Y_r : signed(Y'range);
 
     begin
-        Y_r  <=  resize(X*coef, Y'length);
+        Y_r  <=  signed(resize(unsigned(X*coef), Y'length));
         Y <= Y_r when rst='1' else (others => '0');
         process (clk) is
         begin

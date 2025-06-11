@@ -36,8 +36,8 @@ library IEEE;
 entity Quantizer_Interconnect is
     port (L_READ : in  STD_LOGIC;
           R_READ : in  STD_LOGIC;
-          DI_L   : in  STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
-          DI_R   : in  STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
+          DI_L   : in  STD_LOGIC_VECTOR((CO_B - 1) downto 0);
+          DI_R   : in  STD_LOGIC_VECTOR((CO_B - 1) downto 0);
           update : in  std_logic;
           addr   : in  std_logic_vector(7 downto 0);
           cval   : in  std_logic_vector(31 downto 0);
@@ -98,7 +98,7 @@ begin
 --         );
     SDCK <= CLK;
     quantizer_l: SigmaDelta
-        generic map (AUD_B, PWM_B)
+        generic map (CO_B, PWM_B)
         port map (
             X      => DI_L,
             Y      => QUANT_L,
@@ -110,7 +110,7 @@ begin
         );
 
     quantizer_r: SigmaDelta
-        generic map (AUD_B, PWM_B)
+        generic map (CO_B, PWM_B)
         port map (
             X      => DI_R,
             Y      => QUANT_R,

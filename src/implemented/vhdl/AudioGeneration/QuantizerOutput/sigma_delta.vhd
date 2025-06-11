@@ -75,7 +75,7 @@ end entity;
 architecture DataFlow of SigmaDelta is
 
     --  extra bits to use with integrators
-    constant ebits : integer := 48;
+    constant ebits : integer := 32;
 
     --  total bits for integrators
     constant ibits : integer := X'length + ebits;
@@ -87,25 +87,25 @@ architecture DataFlow of SigmaDelta is
     type mult_arr   is array(1 to 5) of signed((2*ibits-1) downto 0);
     -- coefficents for 5 bit modulator, 16x OSR
     constant A : param_arr := 
-            (   to_signed(integer(cscale*real(-0.125/4)), ibits), 
-                to_signed(integer(cscale*real(-0.25/4)), ibits),
-                to_signed(integer(cscale*real(-0.5/4)), ibits),
+            (   to_signed(integer(cscale*real(-0.125/2)), ibits), 
+                to_signed(integer(cscale*real(-0.25/2)), ibits),
                 to_signed(integer(cscale*real(-0.5/2)), ibits),
+                to_signed(integer(cscale*real(-0.5)), ibits),
                 to_signed(integer(cscale*real(-0.0)), ibits)
             );
 
     constant B : param_arr := 
-            (   to_signed(integer(cscale*real(0.125/4)), ibits),
-                to_signed(integer(cscale*real(0.25/4)), ibits),
-                to_signed(integer(cscale*real(0.5/4)), ibits),
+            (   to_signed(integer(cscale*real(0.125/2)), ibits),
+                to_signed(integer(cscale*real(0.25/2)), ibits),
                 to_signed(integer(cscale*real(0.5/2)), ibits),
+                to_signed(integer(cscale*real(0.5)), ibits),
                 to_signed(integer(cscale*real(1.0)), ibits)
             );
             
     constant C : param_arr := 
             (   to_signed(integer(cscale*real(0.0625)), ibits), 
                 to_signed(integer(cscale*real(0.125)), ibits),
-                to_signed(integer(cscale*real(0.25)), ibits),
+                to_signed(integer(cscale*real(0.5)), ibits),
                 to_signed(integer(cscale*real(1.0)), ibits),
                 to_signed(integer(cscale*real(0)), ibits)
             );
@@ -114,7 +114,7 @@ architecture DataFlow of SigmaDelta is
         to_signed(integer(cscale*real(-0.0625/2)), ibits);
 
     constant D42    : signed((ibits-1) downto 0) := 
-        to_signed(integer(cscale*real(-0.0625/2)), ibits);
+        to_signed(integer(cscale*real(-0.0625/4)), ibits);
 
     --  error from difference
     signal      E		:	param_arr;
@@ -259,8 +259,8 @@ begin
 
             dclkd <= dclk;
             dclkp <= dclkd xor dclk;
---              if dclkp = '1' and dclkd = '0' then
-                Xs <= signed(X);
+--            if dclkp = '1' and dclkd = '0' then
+            Xs <= signed(X);
 --            end if;
         end if;
     end process;

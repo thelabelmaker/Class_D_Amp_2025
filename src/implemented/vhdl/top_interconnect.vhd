@@ -113,7 +113,7 @@ architecture Behavioral of top_interconnect is
 --        );
 --    end component;
 
-    signal SDCK       : std_logic;
+    signal SDCK      : std_logic;
     signal i2s_l_rdy : std_logic;
     signal i2s_r_rdy : std_logic;
 
@@ -238,9 +238,9 @@ begin
         if rising_edge(CLK) then
 
             hpf_l_pos <= hpf_l_pos_xd;
-            hpf_r_pos <= hpf_l_pos_xd;
-            lpf_l_pos <= hpf_l_pos_xd;
-            lpf_r_pos <= hpf_l_pos_xd;
+            hpf_r_pos <= hpf_r_pos_xd;
+            lpf_l_pos <= lpf_l_pos_xd;
+            lpf_r_pos <= lpf_r_pos_xd;
 
             if mod_mode = '1' then
                 hpf_l_neg <= hpf_l_neg_bd;

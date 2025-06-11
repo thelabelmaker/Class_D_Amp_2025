@@ -71,10 +71,10 @@ architecture Behavioral of audio_interconnect is
     component crossover_interconnect is
         port (AUD_IN_L : in  std_logic_vector((AUD_B - 1) downto 0);
               AUD_IN_R : in  std_logic_vector((AUD_B - 1) downto 0);
-              HPF_L    : out std_logic_vector((AUD_B - 1) downto 0);
-              HPF_R    : out std_logic_vector((AUD_B - 1) downto 0);
-              LPF_L    : out std_logic_vector((AUD_B - 1) downto 0);
-              LPF_R    : out std_logic_vector((AUD_B - 1) downto 0);
+              HPF_L    : out std_logic_vector((CO_B - 1) downto 0);
+              HPF_R    : out std_logic_vector((CO_B - 1) downto 0);
+              LPF_L    : out std_logic_vector((CO_B - 1) downto 0);
+              LPF_R    : out std_logic_vector((CO_B - 1) downto 0);
               CLK      : in  STD_LOGIC;
               RST      : in  STD_LOGIC;
               L_RDY    : out STD_LOGIC;
@@ -86,8 +86,8 @@ architecture Behavioral of audio_interconnect is
     component Quantizer_Interconnect is
         port (L_READ : in  STD_LOGIC;
               R_READ : in  STD_LOGIC;
-              DI_L   : in  STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
-              DI_R   : in  STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
+              DI_L   : in  STD_LOGIC_VECTOR((CO_B - 1) downto 0);
+              DI_R   : in  STD_LOGIC_VECTOR((CO_B - 1) downto 0);
               update : in  std_logic;
               addr   : in  std_logic_vector(7 downto 0);
               cval   : in  std_logic_vector(31 downto 0);
@@ -97,10 +97,10 @@ architecture Behavioral of audio_interconnect is
               EN_R   : out STD_LOGIC);
     end component;
 
-    signal hpf_l : std_logic_vector((AUD_B - 1) downto 0);
-    signal hpf_r : std_logic_vector((AUD_B - 1) downto 0);
-    signal lpf_l : std_logic_vector((AUD_B - 1) downto 0);
-    signal lpf_r : std_logic_vector((AUD_B - 1) downto 0);
+    signal hpf_l : std_logic_vector((CO_B - 1) downto 0);
+    signal hpf_r : std_logic_vector((CO_B - 1) downto 0);
+    signal lpf_l : std_logic_vector((CO_B - 1) downto 0);
+    signal lpf_r : std_logic_vector((CO_B - 1) downto 0);
 
     signal co_l_rdy : std_logic;
     signal co_r_rdy : std_logic;
