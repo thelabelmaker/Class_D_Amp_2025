@@ -1,3 +1,13 @@
+----------------------------------------------------------------------------
+--
+--  crossover_coef.vhd
+--
+--  
+--  Revision History:
+--  
+----------------------------------------------------------------------------
+
+
 library work;
 library IEEE;
     use IEEE.STD_LOGIC_1164.all;
@@ -40,19 +50,19 @@ package crossover_coef is
     (
         (   --  1st biquad coefficents
             --  b2                  --  a2
-            (to_signed(integer(cscale*0.001023217638395), cbits),    to_signed(integer(cscale*(-0.911594496458170)), cbits)),
+            (to_signed(integer(cscale*0.005742849731856), cbits),    to_signed(integer(cscale*(-0.719845029718650)), cbits)),
             --  b1                  --  a1
-            (to_signed(integer(cscale*0.002046435276790), cbits),    to_signed(integer(cscale*(1.907501625904590)), cbits)),
+            (to_signed(integer(cscale*0.011485699463712), cbits),    to_signed(integer(cscale*(1.696873630791230)), cbits)),
             --  b0                  --  a0
-            (to_signed(integer(cscale*0.001023217638395), cbits),    to_signed(integer(cscale*1.0), cbits))
+            (to_signed(integer(cscale*0.005742849731856), cbits),    to_signed(integer(cscale*1.0), cbits))
         ),
         (   --  2nd biquad coefficents
             --  b2                  --  a2
-            (to_signed(integer(cscale*0.001023217638395), cbits),    to_signed(integer(cscale*(-0.911594496458170)), cbits)),
+            (to_signed(integer(cscale*0.000003844633507), cbits),    to_signed(integer(cscale*(-0.994461789066686)), cbits)),
             --  b1                  --  a1
-            (to_signed(integer(cscale*0.002046435276790), cbits),    to_signed(integer(cscale*(1.907501625904590)), cbits)),
+            (to_signed(integer(cscale*0.000007689267014), cbits),    to_signed(integer(cscale*(1.994446410532660)), cbits)),
             --  b0                  --  a0
-            (to_signed(integer(cscale*0.001023217638395), cbits),    to_signed(integer(cscale*1.0), cbits))
+            (to_signed(integer(cscale*0.000003844633507), cbits),    to_signed(integer(cscale*1.0), cbits))
         )
 
         
@@ -82,20 +92,20 @@ package crossover_coef is
     (
         (   --  1st biquad coefficents
             --  b2                  --  a2
-            (to_signed(integer(cscale*0.954774030590690), cbits),    to_signed(integer(cscale*(-0.911594496458170)), cbits)),
+            (to_signed(integer(cscale*0.854179665127469), cbits),    to_signed(integer(cscale*(-0.719845029718650)), cbits)),
             --  b1                  --  a1
-            (to_signed(integer(cscale*(-1.909548061181380)), cbits),    to_signed(integer(cscale*(1.907501625904590)), cbits)),
+            (to_signed(integer(cscale*(-1.708359330254940)), cbits),    to_signed(integer(cscale*(1.696873630791230)), cbits)),
             --  b0                  --  a0
-            (to_signed(integer(cscale*0.954774030590690), cbits),    to_signed(integer(cscale*1.0), cbits))
+            (to_signed(integer(cscale*0.854179665127469), cbits),    to_signed(integer(cscale*1.0), cbits))
         ),
 
-        (   --  2nd biquad coefficents
+        (   --  1st biquad coefficents
             --  b2                  --  a2
-            (to_signed(integer(cscale*0.954774030590690), cbits),    to_signed(integer(cscale*(-0.911594496458170)), cbits)),
+            (to_signed(integer(cscale*0.854179665127469), cbits),    to_signed(integer(cscale*(-0.719845029718650)), cbits)),
             --  b1                  --  a1
-            (to_signed(integer(cscale*(-1.909548061181380)), cbits),    to_signed(integer(cscale*(1.907501625904590)), cbits)),
+            (to_signed(integer(cscale*(-1.708359330254940)), cbits),    to_signed(integer(cscale*(1.696873630791230)), cbits)),
             --  b0                  --  a0
-            (to_signed(integer(cscale*0.954774030590690), cbits),    to_signed(integer(cscale*1.0), cbits))
+            (to_signed(integer(cscale*0.854179665127469), cbits),    to_signed(integer(cscale*1.0), cbits))
         )
 
     );

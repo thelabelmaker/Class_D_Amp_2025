@@ -27,16 +27,16 @@ library work;
 
     -- Uncomment the following library declaration if instantiating
     -- any Xilinx leaf cells in this code.
-    --library UNISIM;
-    --use UNISIM.VComponents.all;
+--library UNISIM;
+--    use UNISIM.VComponents.all;
 
 entity top_interconnect is
-    port (SD            : in    STD_LOGIC;
-          WS            : in   STD_LOGIC;
-          BCK           : in   STD_LOGIC;
+    port (SD              : in    STD_LOGIC;
+          WS              : in    STD_LOGIC;
+          BCK             : in    STD_LOGIC;
           --MCLK          : in   STD_LOGIC;
-          SDA           : inout STD_LOGIC;
-          SCL           : in    STD_LOGIC;
+          SDA             : inout STD_LOGIC;
+          SCL             : in    STD_LOGIC;
 
           AUD_HPF_R_POS : out   STD_LOGIC;
           AUD_HPF_L_POS : out   STD_LOGIC;
@@ -47,12 +47,32 @@ entity top_interconnect is
           AUD_HPF_L_NEG : out   STD_LOGIC;
           AUD_LPF_R_NEG : out   STD_LOGIC;
           AUD_LPF_L_NEG : out   STD_LOGIC;
+          
+          AUD_HPF_R_POS_P : out   STD_LOGIC;
+          AUD_HPF_L_POS_P : out   STD_LOGIC;
+          AUD_LPF_R_POS_P : out   STD_LOGIC;
+          AUD_LPF_L_POS_P : out   STD_LOGIC;
+
+          AUD_HPF_R_POS_N : out   STD_LOGIC;
+          AUD_HPF_L_POS_N : out   STD_LOGIC;
+          AUD_LPF_R_POS_N : out   STD_LOGIC;
+          AUD_LPF_L_POS_N : out   STD_LOGIC;
+
+          AUD_HPF_R_NEG_P : out   STD_LOGIC;
+          AUD_HPF_L_NEG_P : out   STD_LOGIC;
+          AUD_LPF_R_NEG_P : out   STD_LOGIC;
+          AUD_LPF_L_NEG_P : out   STD_LOGIC;
+
+          AUD_HPF_R_NEG_N : out   STD_LOGIC;
+          AUD_HPF_L_NEG_N : out   STD_LOGIC;
+          AUD_LPF_R_NEG_N : out   STD_LOGIC;
+          AUD_LPF_L_NEG_N : out   STD_LOGIC;
 
           --CLK_100       : in    STD_LOGIC;
-          CLK           : in    std_logic;
-          RST           : in    STD_LOGIC;
-          STATUS_LED    : out   std_logic_vector(7 downto 0));
-          --mod_mode      : in    std_logic);
+          CLK             : in    std_logic;
+          RST             : in    STD_LOGIC;
+          STATUS_LED      : out   std_logic_vector(7 downto 0));
+    --mod_mode      : in    std_logic);
 end entity;
 
 architecture Behavioral of top_interconnect is
@@ -60,15 +80,13 @@ architecture Behavioral of top_interconnect is
         port (CLK   : in  STD_LOGIC;
               RST   : in  STD_LOGIC;
               DI    : in  STD_LOGIC;
-              BCK   : in STD_LOGIC;
-              WS    : in STD_LOGIC;
+              BCK   : in  STD_LOGIC;
+              WS    : in  STD_LOGIC;
               L_RDY : out STD_LOGIC;
               R_RDY : out STD_LOGIC;
               DO_L  : out STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
               DO_R  : out STD_LOGIC_VECTOR((AUD_B - 1) downto 0));
     end component;
-    
-
 
     component audio_interconnect is
         port (
@@ -91,28 +109,27 @@ architecture Behavioral of top_interconnect is
             RST       : in  STD_LOGIC);
     end component;
 
---    component I2C_interconnect is
---        port (
---            SDA    : inout std_logic;
---            SCL    : in   std_logic;
---            dout   : out   std_logic_vector(31 downto 0);
---            addr   : out   std_logic_vector(7 downto 0);
---            update : out   std_logic;
+    --    component I2C_interconnect is
+    --        port (
+    --            SDA    : inout std_logic;
+    --            SCL    : in   std_logic;
+    --            dout   : out   std_logic_vector(31 downto 0);
+    --            addr   : out   std_logic_vector(7 downto 0);
+    --            update : out   std_logic;
 
---            clk    : in    std_logic;
---            rst    : in    std_logic
---        );
+    --            clk    : in    std_logic;
+    --            rst    : in    std_logic
+    --        );
 
---    end component;
+    --    end component;
 
---    component CLK_SOLO_wrapper is
---        port (
---            CLK     : out STD_LOGIC;
---            CLK_100 : in  STD_LOGIC;
---            RST     : in  STD_LOGIC
---        );
---    end component;
-
+    --    component CLK_SOLO_wrapper is
+    --        port (
+    --            CLK     : out STD_LOGIC;
+    --            CLK_100 : in  STD_LOGIC;
+    --            RST     : in  STD_LOGIC
+    --        );
+    --    end component;
     signal SDCK      : std_logic;
     signal i2s_l_rdy : std_logic;
     signal i2s_r_rdy : std_logic;
@@ -158,8 +175,6 @@ architecture Behavioral of top_interconnect is
 
 begin
 
-    
-
     i2s_controller: I2S_interconnect
         port map (
             CLK   => CLK,
@@ -179,17 +194,16 @@ begin
     in_l_neg <= std_logic_vector(resize(- 1 * signed(i2s_dl), AUD_B));
     in_r_neg <= std_logic_vector(resize(- 1 * signed(i2s_dr), AUD_B));
 
---    i2c_mgr: I2C_interconnect
---        port map (
---            SDA    => SDA,
---            SCL    => SCL,
---            dout   => i2c_do,
---            addr   => i2c_ao,
---            update => update,
---            clk    => clk,
---            rst    => rst
---        );
-
+    --    i2c_mgr: I2C_interconnect
+    --        port map (
+    --            SDA    => SDA,
+    --            SCL    => SCL,
+    --            dout   => i2c_do,
+    --            addr   => i2c_ao,
+    --            update => update,
+    --            clk    => clk,
+    --            rst    => rst
+    --        );
     audio_pos: audio_interconnect
         port map (
             AUD_IN_L  => in_l_pos,
@@ -229,9 +243,89 @@ begin
     lpf_r_neg_ad <= not lpf_r_pos_xd;
     lpf_l_neg_ad <= not lpf_l_pos_xd;
 
-    led_loop : for l in STATUS_LED'range generate
-        STATUS_LED(l) <= '1' when resize(unsigned(abs(signed(I2S_DL(I2S_DL'high downto 1)) + signed(I2S_DR(I2S_DR'high downto 1)))), STATUS_LED'length) > to_unsigned(2**(STATUS_LED'length) - 2**(l) - 1, STATUS_LED'length) else '0';
+    led_loop: for l in STATUS_LED'range generate
+        STATUS_LED(l) <= '1' when resize(unsigned(abs(signed(I2S_DL(I2S_DL'high downto 1)) + signed(I2S_DR(I2S_DR'high downto 1)))), STATUS_LED'length) > to_unsigned(2 ** (STATUS_LED'length) - 2 ** (l) - 1, STATUS_LED'length) else '0';
     end generate;
+
+    -- OBUFDS_hpf_l_neg: OBUFDS
+    --     generic map (
+    --         IOSTANDARD => "LVDS25", -- Specify the output I/O standard
+    --         SLEW       => "FAST") -- Specify the output slew rate
+    --     port map (
+    --         O  => AUD_HPF_L_NEG_P, -- Diff_p output (connect directly to top-level port)
+    --         OB => AUD_HPF_L_NEG_N, -- Diff_n output (connect directly to top-level port)
+    --         I  => hpf_l_neg -- Buffer input 
+    --     );
+
+    -- OBUFDS_hpf_l_pos: OBUFDS
+    --     generic map (
+    --         IOSTANDARD => "LVDS25", -- Specify the output I/O standard
+    --         SLEW       => "FAST") -- Specify the output slew rate
+    --     port map (
+    --         O  => AUD_HPF_L_POS_P, -- Diff_p output (connect directly to top-level port)
+    --         OB => AUD_HPF_L_POS_N, -- Diff_n output (connect directly to top-level port)
+    --         I  => hpf_l_pos -- Buffer input 
+    --     );
+
+    --     OBUFDS_lpf_l_neg: OBUFDS
+    --     generic map (
+    --         IOSTANDARD => "LVDS25", -- Specify the output I/O standard
+    --         SLEW       => "FAST") -- Specify the output slew rate
+    --     port map (
+    --         O  => AUD_LPF_L_NEG_P, -- Diff_p output (connect directly to top-level port)
+    --         OB => AUD_LPF_L_NEG_N, -- Diff_n output (connect directly to top-level port)
+    --         I  => lpf_l_neg -- Buffer input 
+    --     );
+
+    -- OBUFDS_lpf_l_pos: OBUFDS
+    --     generic map (
+    --         IOSTANDARD => "LVDS25", -- Specify the output I/O standard
+    --         SLEW       => "FAST") -- Specify the output slew rate
+    --     port map (
+    --         O  => AUD_LPF_L_POS_P, -- Diff_p output (connect directly to top-level port)
+    --         OB => AUD_LPF_L_POS_N, -- Diff_n output (connect directly to top-level port)
+    --         I  => lpf_l_pos -- Buffer input 
+    --     );
+
+    --     OBUFDS_hpf_r_neg: OBUFDS
+    --     generic map (
+    --         IOSTANDARD => "LVDS25", -- Specify the output I/O standard
+    --         SLEW       => "FAST") -- Specify the output slew rate
+    --     port map (
+    --         O  => AUD_HPF_R_NEG_P, -- Diff_p output (connect directly to top-level port)
+    --         OB => AUD_HPF_r_NEG_N, -- Diff_n output (connect directly to top-level port)
+    --         I  => hpf_r_neg -- Buffer input 
+    --     );
+
+    -- OBUFDS_hpf_r_pos: OBUFDS
+    --     generic map (
+    --         IOSTANDARD => "LVDS25", -- Specify the output I/O standard
+    --         SLEW       => "FAST") -- Specify the output slew rate
+    --     port map (
+    --         O  => AUD_HPF_R_POS_P, -- Diff_p output (connect directly to top-level port)
+    --         OB => AUD_HPF_R_POS_N, -- Diff_n output (connect directly to top-level port)
+    --         I  => hpf_r_pos -- Buffer input 
+    --     );
+
+    --     OBUFDS_lpf_r_neg: OBUFDS
+    --     generic map (
+    --         IOSTANDARD => "LVDS25", -- Specify the output I/O standard
+    --         SLEW       => "FAST") -- Specify the output slew rate
+    --     port map (
+    --         O  => AUD_LPF_R_NEG_P, -- Diff_p output (connect directly to top-level port)
+    --         OB => AUD_LPF_R_NEG_N, -- Diff_n output (connect directly to top-level port)
+    --         I  => lpf_r_neg -- Buffer input 
+    --     );
+
+    -- OBUFDS_lpf_r_pos: OBUFDS
+    --     generic map (
+    --         IOSTANDARD => "LVDS25", -- Specify the output I/O standard
+    --         SLEW       => "FAST") -- Specify the output slew rate
+    --     port map (
+    --         O  => AUD_LPF_R_POS_P, -- Diff_p output (connect directly to top-level port)
+    --         OB => AUD_LPF_R_POS_N, -- Diff_n output (connect directly to top-level port)
+    --         I  => lpf_r_pos -- Buffer input 
+    --     );
 
     process (CLK)
     begin
@@ -254,16 +348,44 @@ begin
                 lpf_r_neg <= lpf_r_neg_ad;
             end if;
 
+            AUD_HPF_L_NEG_P <= hpf_l_neg;
+            AUD_HPF_L_NEG_N <= not hpf_l_neg;
+
+            AUD_HPF_R_NEG_P <= hpf_r_neg;
+            AUD_HPF_R_NEG_N <= not hpf_r_neg;
+
+            AUD_HPF_L_POS_P <= hpf_l_pos;
+            AUD_HPF_L_POS_N <= not hpf_l_pos;
+
+            AUD_HPF_R_POS_P <= hpf_r_pos;
+            AUD_HPF_R_POS_N <= not hpf_r_pos;
+
+            AUD_LPF_L_NEG_P <= lpf_l_neg;
+            AUD_LPF_L_NEG_N <= not lpf_l_neg;
+
+            AUD_LPF_R_NEG_P <= lpf_r_neg;
+            AUD_LPF_R_NEG_N <= not lpf_r_neg;
+
+            AUD_LPF_L_POS_P <= lpf_l_pos;
+            AUD_LPF_L_POS_N <= not lpf_l_pos;
+
+            AUD_LPF_R_POS_P <= lpf_r_pos;
+            AUD_LPF_R_POS_N <= not lpf_r_pos;
+
             AUD_HPF_L_NEG <= hpf_l_neg;
+
             AUD_HPF_R_NEG <= hpf_r_neg;
 
             AUD_HPF_L_POS <= hpf_l_pos;
+
             AUD_HPF_R_POS <= hpf_r_pos;
 
             AUD_LPF_L_NEG <= lpf_l_neg;
+
             AUD_LPF_R_NEG <= lpf_r_neg;
 
             AUD_LPF_L_POS <= lpf_l_pos;
+
             AUD_LPF_R_POS <= lpf_r_pos;
 
         end if;
