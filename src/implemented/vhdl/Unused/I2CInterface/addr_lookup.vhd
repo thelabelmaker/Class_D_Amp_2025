@@ -1,9 +1,9 @@
 library work;
 
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
-USE IEEE.MATH_REAL.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.NUMERIC_STD.all;
+USE ieee.MATH_REAL.all;
 
 
 package addr_lookup is 

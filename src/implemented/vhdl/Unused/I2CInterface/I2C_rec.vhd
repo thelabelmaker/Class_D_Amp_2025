@@ -18,9 +18,9 @@
 -- 
 ----------------------------------------------------------------------------------
 
-library IEEE;
-    use IEEE.STD_LOGIC_1164.all;
-    use IEEE.NUMERIC_STD.all;
+library ieee;
+    use ieee.std_logic_1164.all;
+    use ieee.NUMERIC_STD.all;
 
     -- Uncomment the following library declaration if instantiating
     -- any Xilinx leaf cells in this code.
@@ -28,12 +28,12 @@ library IEEE;
     --use UNISIM.VComponents.all;
 
 entity I2C_rec is
-    port (SDA  : inout STD_LOGIC;
-          SCL  : in    STD_LOGIC;
-          RST  : in    STD_LOGIC;
-          DOUT : out   STD_LOGIC_VECTOR(39 downto 0);
-          DRDY : out   STD_LOGIC;
-          CLK  : in    STD_LOGIC
+    port (SDA  : inout std_logic;
+          SCL  : in    std_logic;
+          RST  : in    std_logic;
+          DOUT : out   std_logic_vector(39 downto 0);
+          DRDY : out   std_logic;
+          CLK  : in    std_logic
          );
 end entity;
 

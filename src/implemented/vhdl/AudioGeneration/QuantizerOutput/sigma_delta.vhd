@@ -1,5 +1,29 @@
+--------------------------------------------------------------------------------
+--
+--  sigma_delta.vhd
+--
+--  this file contains the implementation for a 4th order sigma-delta converter.
+--  the file has 2 entites. the SigmaDelta entity connects together the
+--  integral aand error stages 
+--
+--  Entities:
+--      1. sigma        :   integrator 
+--      2. SigmaDelta   :   sigma-delta converter
+--  
+--  Revision History:
+--      26 Feb 25  Ethan Labelson     inital revision 
+--      27 Feb 25  Ethan Labelson     update feedback timing
+--      28 Feb 25  Ethan Labelson     testing with 2 integrators
+--      01 Mar 25  Ethan Labelson     remove 2nd integrator for fitting
+--      03 Mar 25  Ethan Labelson     updated comments
+--      14 May 25  Ethan Labelson     modified to fit with 119c project
+--      ** May 25  Ethan Labelson     many slight tweaks, playing with shifts
+--      ** May 25  Ethan Labelson     playing with coefficents all of May
+--      02 Jun 25  Ethan Labelson     moved to single bit ouput
+--      19 Jun 25  Ethan Labelson     updated docs and comments
+--------------------------------------------------------------------------------
 
-library ieee;
+library ieee; --  import needed standard libs
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
@@ -19,7 +43,7 @@ entity sigma is
         --  error to integrate
         E   : in     signed((nbits - 1) downto 0);
 
-        --  current sum 
+        --  current sum
         S   : buffer signed((nbits - 1) downto 0) := (others => '0');
 
         --  global clock input
@@ -39,18 +63,34 @@ begin
         --  adds input to delayed sum: S = E + (z^-1)S
         if rising_edge(clk) then
             Sd <= S;
-            --S   <=  S + E;
         end if;
     end process;
 end architecture;
 
 library work;
-    use work.addr_lookup.all;
+--    use work.addr_lookup.all;
 
 library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
     use ieee.math_real.all;
+
+    --  entity declaration for SigmaDelta
+    --  inputs:
+    --      X       :   signed opperand; error form difference operation
+    --      clk     :   global clock signal
+    --
+    --  outputs:
+    --      Y       :   signed buffer; current sum (delayed)
+    --
+    --  unused inputs:     
+    --  these exist in the entity but arent currently used, although i used them
+    --  in the past and think i may want to use them again sometime.
+    --      update  :   std_logic; indicate an update from i2c interface
+    --      addr    :   std_logic_vector address; which coef i2c is accessing
+    --      cval    :   std_logic_vector (signed) coef; coef input from i2c rec
+    --      dclk    :   std_logic data clock; can help sync incoming data
+    --
 
 entity SigmaDelta is
     generic (nbits : integer := 16; outb : integer := 5);
@@ -64,10 +104,12 @@ entity SigmaDelta is
         --  global clock input
         clk    : in     std_logic;
 
+        --  signals for changing params via i2c. currently unused.
         update : in     std_logic;
         addr   : in     std_logic_vector(7 downto 0);
         cval   : in     std_logic_vector(31 downto 0);
 
+        --  data clock input
         dclk   : in     std_logic
     );
 end entity;
@@ -80,12 +122,15 @@ architecture DataFlow of SigmaDelta is
     --  total bits for integrators
     constant ibits : integer := X'length + ebits;
 
+    --  scale factor for 
     constant cscale : real := 2.0 ** (X'length - 1);
 
     type param_arr  is array(1 to 5) of signed((ibits-1) downto 0);
 
     type mult_arr   is array(1 to 5) of signed((2*ibits-1) downto 0);
-    -- coefficents for 5 bit modulator, 16x OSR
+
+    --  coefficents for 5 bit modulator, 16x OSR
+    --  A controls the scale on the feedback from the output, A(n) => stage n
     constant A : param_arr := 
             (   to_signed(integer(cscale*real(-0.125/2)), ibits), 
                 to_signed(integer(cscale*real(-0.25/2)), ibits),
@@ -94,6 +139,7 @@ architecture DataFlow of SigmaDelta is
                 to_signed(integer(cscale*real(-0.0)), ibits)
             );
 
+    --  B controls the gain on the input signal
     constant B : param_arr := 
             (   to_signed(integer(cscale*real(0.125/2)), ibits),
                 to_signed(integer(cscale*real(0.25/2)), ibits),
@@ -101,7 +147,7 @@ architecture DataFlow of SigmaDelta is
                 to_signed(integer(cscale*real(0.5)), ibits),
                 to_signed(integer(cscale*real(1.0)), ibits)
             );
-            
+    --  C controls the gain between stages 
     constant C : param_arr := 
             (   to_signed(integer(cscale*real(0.0625)), ibits), 
                 to_signed(integer(cscale*real(0.125)), ibits),
@@ -110,18 +156,24 @@ architecture DataFlow of SigmaDelta is
                 to_signed(integer(cscale*real(0)), ibits)
             );
 
+    --  internal feedback within the modulator (helps stability)
+    --  feedback from stage 2 to stage 1
     constant D21    : signed((ibits-1) downto 0) := 
         to_signed(integer(cscale*real(-0.0625/2)), ibits);
 
+    --  feddback from stage 4 to stage 2
     constant D42    : signed((ibits-1) downto 0) := 
         to_signed(integer(cscale*real(-0.0625/4)), ibits);
 
     --  error from difference
     signal      E		:	param_arr;
+    --  error non truncated
     signal      El      :   mult_arr;
+
+    --  sums from integrator
     signal      S		:	param_arr;
 
-    --  sum of integrations
+    --  delayed sum of integrations
     signal      S2d      :	signed((ibits-1) downto 0)  :=  (others => '0');
     signal      S4d     :	signed((ibits-1) downto 0)  :=  (others => '0');
 
@@ -180,26 +232,14 @@ architecture DataFlow of SigmaDelta is
 
 begin
 
+    --  sign extend the inputs so integrators dont overflow
     padBHX <= (others => Xs(Xs'high));
     padBHY <= (others => Yp(Yp'high));
-    --  sign extend the inputs so integrators dont overflow
-    --Xe(Xe'high downto X'high+1) <=  (others => Xs(X'high));
-    --Xe(X'high downto 0)         <=  Xs;
     Xe <= padBHX & Xs;
 
-    --  if the 1-bit output is 1, set Ye to most positive value
-    --  if the 1-bit output is 0, set Ye to most negitive value
-    -- Ye(Ye'high downto X'length)         <=  (others => Yp(Yp'high));
-    -- Ye(X'high downto X'high-Y'high)     <=  Yp(Yp'high downto (Yp'length-Y'length));
-    -- Ye(X'high-Y'length downto 0)        <=  (others => '0');
+    
 
-    --Ye  <=  resize(Yp(Yp'high downto (Yp'high-Y'high)), ibits);
-
-    -- Ye(Ye'high downto X'length)         <=  (others => Y(Y'high));
-    -- Ye(X'high downto X'high-Y'high)     <=  signed(Y(Y'high downto Y'high-Y'high));
-    -- Ye(X'high-Y'length downto 0)        <=  (others => not Y(Y'high));
-
-    --  map components together
+    --  map components together, 4 integrator stanges total
     int_1   :   sigma generic map(nbits => ibits)
                 port map(
                     E(1), S(1), clk
@@ -219,81 +259,51 @@ begin
                 port map(
                     E(4), S(4), clk
                 );
-    
-    -- E1 <= resize((Xe*B(1) + Ye*A(1)) sra (X'length-1), ibits);
-    -- E2 <= resize((Xe*B(2) + Ye*A(2) + S1*C(1)) sra (X'length-1), ibits);
-    -- Yp <= resize((Xe*B(3) + Ye*A(3) + S2*C(2) + S1*D13) sra ((X'length-1)),
-    --         ibits);
+
+    --  accumulate error for each stage in array
     El(1) <= Xe*B(1) + Ye*A(1) + S2d*D21;
     El(2) <= Xe*B(2) + Ye*A(2) + S(1)*C(1);
     El(3) <= Xe*B(3) + Ye*A(3) + S(2)*C(2) + S4d*D42;
     El(4) <= Xe*B(4) + Ye*A(4) + S(3)*C(3);
     Ypl   <= Xe*B(5) + Ye*A(5) + S(4)*C(4);
-    --E1  <= E1l(E1l'high) & E1l(E1l'high-ebits-1 downto X'length);
-    --E2  <= E2l(E2l'high) & E2l(E2l'high-ebits-1 downto X'length);
 
+    --  loop through extended error array; shift out underflow and resize
     flow: for ind in El'range generate
         E(ind)  <= resize(shift_right(El(ind), X'high), ibits);
     end generate;
 
     Yp  <= resize(shift_right(Ypl, X'high), ibits);
 
-    --Yp  <= Ypl(Ypl'high) & Ypl(Ypl'high-ebits-1 downto X'length);
     process (clk)
     begin
         if rising_edge(clk) then
+            --  if the 1-bit output is 1, set Ye to most positive value
+            --  if the 1-bit output is 0, set Ye to most negitive value
             Ye(Ye'high downto X'high) <= (others => Yp(Yp'high));
             Ye(X'high - 1 downto 0) <= (others => not Yp(Yp'high));
 
             --  quantization of the output
-            --  if MSB of S is 1, result negitive, output low
-            --  if MSB of S is 0, result positive, output high
-            --Y   <=  std_logic_vector(Yp((ibits-1) downto (ibits-Y'length)));
+            --  if MSB of S is 1, result negitive, output high
+            --  if MSB of S is 0, result positive, output low
+            --  as im writing my comments i am realizing that this can flip the
+            --  polarity of the audio, but the way i have it written in the pwm
+            --  output file corrects it so it works right.
             Y <= Yp(Yp'high);
 
-            --  Y   <=  std_logic_vector(Yp((Yp'high-X'length) downto
-            --  (Yp'length-X'length-Y'length)));
-            --Y   <=  std_logic_vector(resize(Yp, Y'length));
+            --  store the sums from stages 2 and 4 for use with feedback
             S4d <= S(4);
             S2d <= S(2);
 
+            --  can use data clock if needed, i was originally using one to keep
+            --  my data input synced, however i later moved to doing the sync in
+            --  the crossover interconnect. now no need to use data clock.
+            --  variables still remain from previous version (and may want to
+            --  use again at some point)
             dclkd <= dclk;
             dclkp <= dclkd xor dclk;
---            if dclkp = '1' and dclkd = '0' then
+
+            --  buffer inputs 
             Xs <= signed(X);
---            end if;
         end if;
     end process;
-
-    -- process (update)
-    -- begin
-    --     if rising_edge(update) then
-    --         case (addr) is
-    --             when A1_addr =>
-    --                 A(1) <= resize(signed(cval), ibits);
-    --             when A2_addr =>
-    --                 A(2) <= resize(signed(cval), ibits);
-    --             when A3_addr =>
-    --                 A(3) <= resize(signed(cval), ibits);
-    --             when B1_addr =>
-    --                 B(1) <= resize(signed(cval), ibits);
-    --             when B2_addr =>
-    --                 B(2) <= resize(signed(cval), ibits);
-    --             when B3_addr =>
-    --                 B(3) <= resize(signed(cval), ibits);
-    --             when C1_addr =>
-    --                 C(1) <= resize(signed(cval), ibits);
-    --             when C2_addr =>
-    --                 C(2) <= resize(signed(cval), ibits);
-    --             when C3_addr =>
-    --                 C(3) <= resize(signed(cval), ibits);
-    --             when D12_addr =>
-    --                 D13 <= resize(signed(cval), ibits);
-    --             when E21_addr =>
-    --                 E21 <= resize(signed(cval), ibits);
-    --             when others =>
-
-    --         end case;
-    --     end if;
-    -- end process;
 end architecture;

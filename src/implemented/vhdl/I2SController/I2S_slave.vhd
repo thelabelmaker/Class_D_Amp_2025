@@ -1,133 +1,168 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 04/20/2025 02:30:50 AM
--- Design Name: 
--- Module Name: I2S_master - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+--
+--  I2S_slave.vhd
+--
+--  
+--  Revision History:
+--    20 Apr 25  Ethan Labelson     inital revision of i2s_master
+--    22 Apr 25  Ethan Labelson     working i2s in simulation
+--    14 May 25  Ethan Labelson     adjust for ESP32 (working audio out!)
+--    09 Jun 25  Ethan Labelson     changed over to I2S_slave with external adc
+--    19 Jun 25  Ethan Labelson     updated comments and docs
+-------------------------------------------------------------------------------
+
+library ieee; --  import standard libs
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
+    use ieee.math_real.all;
+
+library work; --  import I2S info
+    use work.I2S_constants.all;
+
+    --  design references for I2S implementation
+    --  https://www.nxp.com/docs/en/user-manual/UM11732.pdf
+    --  manual provides suggested hardware block diagram for an i2s receiver.
+    --  this design loosely follows those guidelines.
 
 
---  import libs
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
-use IEEE.math_real.ALL;
+--  entity declaration for i2s_interconnect 
+    --  inputs:
+    --      WS          :   audio frame clock; word select choose L/R
+    --      BCLK        :   audio bit clock; data bits sync with bck 
+    --      MCLK        :   global clock signal
+    --      DI          :   data bit; serial data in from i2s
+    --      RST         :   system reset
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-library work;
-USE work.I2S_constants.all;
-
-
---  design references
---  https://www.nxp.com/docs/en/user-manual/UM11732.pdf
-
+    --  outputs:
+    --      LDR         :   data ready bit; indicates left data ready   
+    --      RDR         :   data ready bit; indicates right data ready
+    --      DO_L        :   signed i2s data; left data in from i2s
+    --      DO_R        :   signed i2s data; right data in from i2s
 entity I2S_slave is
-    Port ( 
+    port (
         --  master clock line
-        MCLK : in STD_LOGIC;
+        MCLK : in  std_logic;
         --  bit clock for I2S bus (genertaed from MCLK)
-        BCLK : in STD_LOGIC;
+        BCLK : in  std_logic;
         --  word select (select left or right audio)
-        WS : in STD_LOGIC;
-        DI : in STD_LOGIC;
+        WS   : in  std_logic;
 
-        DO_L : out STD_LOGIC_VECTOR ((AUD_B-1) downto 0);
-        DO_R : out STD_LOGIC_VECTOR ((AUD_B-1) downto 0);
-        
+        --  data input from audio receiver
+        DI   : in  std_logic;
+
+        --  full length data outputs
+        DO_L : out std_logic_vector((AUD_B - 1) downto 0);
+        DO_R : out std_logic_vector((AUD_B - 1) downto 0);
+
         --  left data ready
-        LDR  : out STD_LOGIC;
-        
-        --  right data ready
-        RDR  : out STD_LOGIC;
+        LDR  : out std_logic;
 
-        RST :   in  STD_LOGIC);  --  reset signal
-end I2S_slave;
+        --  right data ready
+        RDR  : out std_logic;
+
+        --  reset signal
+        RST  : in  std_logic);
+end entity;
 
 architecture DataFlow of I2S_slave is
 
     --  store audio data while being shifted in
-    signal d_temp    :   UNSIGNED(DO_L'range);
+    signal d_temp : unsigned(DO_L'range);
 
-    signal d_temp_l  :   UNSIGNED(DO_L'range);
-    signal d_temp_r  :   UNSIGNED(DO_L'range);
-
-    
+    signal d_temp_l : unsigned(DO_L'range);
+    signal d_temp_r : unsigned(DO_L'range);
 
     --  select left or right to save data on WS change
-    signal  wsd :   STD_LOGIC;
-    
-    --  output data left ready
-    --signal  wsl :   STD_LOGIC;
-    
-    --  output data right ready
-    --signal wsr :    STD_LOGIC;
+    signal wsd : std_logic;
 
     --  indecate change in WS
-    signal  wsp :   STD_LOGIC;
-    
-    signal bcd  :   STD_LOGIC;
-    
+    signal wsp : std_logic;
+
+    --  delayed bit clock for I2S data input
+    signal bcd : std_logic;
+    --  this should not be needed as doing rising edge detection on bck should
+    --  be sufficent for reading I2S data in. howevever, the xilinx/vivado only
+    --  allows certian pins to accept clock input (something about how clock is
+    --  routed on the chip). i am out of such pins so i do edge detection
+    --  manually synchronised with I3S system clock line.
+
     --  current counter index to write data
-    signal  cnt :   UNSIGNED(natural(log2(real(AUD_B-1))) downto 0);
+    signal cnt : unsigned(natural(log2(real(AUD_B - 1))) downto 0);
 
-    --  to zero counter
-    constant    CNT_MAX     :   UNSIGNED(cnt'range):=to_unsigned(AUD_B-1, cnt'length);
-    constant    DEC_ONE     :   UNSIGNED(cnt'range):=to_unsigned(1, cnt'length);
-    constant    ZERO        :   UNSIGNED(cnt'range):=to_unsigned(0, cnt'length);
+    --  constant for reseting the bit counter every audio frame
+    constant CNT_MAX : unsigned(cnt'range) := to_unsigned(AUD_B - 1, cnt'length);
 
+    --  decrement counter
+    constant DEC_ONE : unsigned(cnt'range) := to_unsigned(1, cnt'length);
 
-    signal  ind :   INTEGER range 0 to AUD_B-1;
+    --  zero constant for comparison
+    constant ZERO : unsigned(cnt'range) := to_unsigned(0, cnt'length);
 
-    begin
-    
-    --d_temp_l <= (others => '0')
-    ind <=  to_integer(cnt);
+    --  index the audio storage buffer to track which bit is being read
+    signal ind : integer range 0 to AUD_B - 1;
+
+begin
+
+    --  cast cnt to an integer
+    ind <= to_integer(cnt);
+
+    --  detect change in WS
     wsp <= wsd xor WS;
-    
-    process(MCLK) begin
+
+    process (MCLK)
+    begin
+        --  everyting sync with mclk
         if rising_edge(MCLK) then
+            --  delay bit clock
             bcd <= bclk;
+            --  find rising edge of bit clk
             if bcd = '0' and bclk = '1' then
-                wsd <=  WS;              
-                if(wsd='0' and wsp='1') then 
+                --  delay WS
+                wsd <= WS;
+                --  on falling edge of WS
+                if (wsd = '0' and wsp = '1') then
+                    --  parallel load temp data buffer to left channel
                     d_temp_l <= d_temp;
+                    --  change output to new frame
                     DO_L <= std_logic_vector(d_temp_l);
-                    LDR <=  '1';
-                    RDR <=  '0';
+                    --  left channel ready to be read
+                    LDR <= '1';
+                    --  right channel no longer ready (now receiving data)
+                    RDR <= '0';
                 end if;
-                
-                if(wsd='1' and wsp='1') then
+                --  on rising edge of ws
+                if (wsd = '1' and wsp = '1') then
+                    --  parallel load temp data buffer to right channel
                     d_temp_r <= d_temp;
+                    --  change output to new frame
                     DO_R <= std_logic_vector(d_temp_r);
-                    RDR <=  '1';
-                    LDR <=  '0';
-                end if;        
-    
-                if wsp = '1' then 
-                    cnt <=  CNT_MAX;
-                elsif not(cnt = ZERO) then 
-                    cnt <=  cnt - DEC_ONE;
-                else
-                    cnt <=  ZERO;
+                    --  right channel ready to be read
+                    RDR <= '1';
+                    --  left channel no longer ready (now receiving data)
+                    LDR <= '0';
                 end if;
-                
-                d_temp(ind) <=  DI;
+                --  note that the data is delayed an additonal frame by moving
+                --  it through the d_temp_l and d_temp_r variables. this is not
+                --  really needed but helps with timing and dosent hurt
+                --  anything.  
+
+                --  if there is a change in WS
+                if wsp = '1' then
+                    --  reset the counter
+                    cnt <= CNT_MAX;
+                    --  if counter not already zero
+                elsif not (cnt = ZERO) then
+                    --  decrement the counter
+                    cnt <= cnt - DEC_ONE;
+                    --  othersise cnt already zero so
+                else
+                    --  hold cnt at zero
+                    cnt <= ZERO;
+                end if;
+
+                --  load incoming data bit into temp buffer
+                d_temp(ind) <= DI;
             end if;
         end if;
     end process;
-end DataFlow;
+end architecture;

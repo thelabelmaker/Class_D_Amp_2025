@@ -1,82 +1,100 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 04/22/2025 08:37:27 AM
--- Design Name: 
--- Module Name: PWM_output - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+--
+--  pwm_output.vhd
+--
+--  this file contains the pwm output stage. the output stage takes the sigma
+--  delta bitstream and turns it into a pwm value which can be output to the
+--  power stages of the amp. 
+--  
+--  Revision History:
+--    22 Apr 25  Ethan Labelson     inital revision
+--    02 Jun 25  Ethan Labelson     moved to 1 bit quantization
+--    19 Jun 25  Ethan Labelson     updated comments and cleaned code
+-------------------------------------------------------------------------------
 
+library ieee; --  import needed standard libs
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
 
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library work; --  import needed constatns
+    use work.I2S_constants.all;
 
-library work;
-use work.I2S_constants.all;
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+    --  entity declaration for pwm_output
+    --  inputs:
+    --      DIN     :   data in bit; high bit of sigma delta result
+    --      SCLK    :   global clock signal
+    --      RST     :   system reset
+    --
+    --  outputs:
+    --      EN      :   enable bit; pwm output to power stage
+    --
+    --  unused i/o:     
+    --  these exist in the entity but arent currently used, although i used them
+    --  in the past and think i may want to use them again sometime.
+    --      sdclk   :   std_logic sigma delta clock; used to clk sd (previously)
+    --      dclk    :   std_logic data clock; can help sync incoming data
 
 entity PWM_output is
-    Port ( SCLK : in STD_LOGIC;
-           DCLK : in STD_LOGIC;
-           SDCLK: out std_logic;
-           DIN  : in std_logic;
-           EN   : out STD_LOGIC;
-           RST  : in STD_LOGIC);
-end PWM_output;
+    port (
+        SCLK  : in  std_logic;
+        DCLK  : in  std_logic;
+        SDCLK : out std_logic;
+        DIN   : in  std_logic;
+        EN    : out std_logic;
+        RST   : in  std_logic);
+end entity;
 
 architecture Behavioral of PWM_output is
 
-    signal cntr :   unsigned((ACC_B-1) downto 0) := (others => '0');
-    signal dsync:   unsigned((PWM_B-1) downto 0);
-    signal dacc: unsigned((ACC_B-1) downto 0);
-    constant CMAX: unsigned((ACC_B-1) downto 0) := (others => '1');
-    signal dclkd:   std_logic;
-    signal dclkp:   std_logic;
-    
-    
+    --  counter 
+    signal cntr  : unsigned((ACC_B - 1) downto 0) := (others => '0');
+    --  synchroinised data 
+    signal dsync : unsigned((PWM_B - 1) downto 0);
+    --  sum of sigma delta inputs
+    signal dacc  : unsigned((ACC_B - 1) downto 0);
+    --  max count
+    constant CMAX : unsigned((ACC_B - 1) downto 0) := (others => '1');
+    --  data clocks to help with data sync
+    signal dclkd : std_logic;
+    signal dclkp : std_logic;
 
 begin
-    process(SCLK) begin
-        
-        if RST='0' then 
-            cntr    <=  (others => '0');
-            dacc    <=  (others => '0');
-        else 
+    process (SCLK)
+    begin
+        --  reset counter
+        if RST = '0' then
+            cntr <= (others => '0');
+            dacc <= (others => '0');
+        else
             if rising_edge(SCLK) then
-                SDCLK    <=  cntr(cntr'high);
+                --  sdclk counter divider (from older version)
+                SDCLK <= cntr(cntr'high);
+                --  if counter overflowing
                 if cntr = CMAX then
-                    dsync   <=  dacc(dacc'high downto (ACC_B-PWM_B));
-                    dacc(dacc'high downto 0)    <=  (others => '0');
-                    dacc(0) <=  DIN;
+                    --  load the current sum into the pwm data input
+                    dsync <= dacc(dacc'high downto (ACC_B - PWM_B));
+                    --  reset data accumulation
+                    dacc(dacc'high downto 0) <= (others => '0');
+                    --  low bit of dacc set to data input 
+                    dacc(0) <= DIN;
+                --  if input low, add 1 to dacc
                 elsif DIN = '0' then
                     dacc <= dacc + 1;
+                --  otherwise hold the value
                 else
-                    dacc <= dacc;    
+                    dacc <= dacc;
                 end if;
-                    
-                if cntr(cntr'high downto (ACC_B-PWM_B)) < dsync then 
-                    EN  <=  '1';
-                else 
-                    EN  <=  '0';
+
+                --  output 1 if counter is less than data value
+                if cntr(cntr'high downto (ACC_B - PWM_B)) < dsync then
+                    EN <= '1';
+                else
+                    EN <= '0';
                 end if;
+                --  always increment counter
                 cntr <= cntr + 1;
             end if;
         end if;
     end process;
 
-end Behavioral;
+end architecture;

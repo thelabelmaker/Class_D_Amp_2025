@@ -54,7 +54,7 @@
   V4p.Settings.Basics.LicenseFile = ""
   V4p.Settings.Basics.LogSeverity = Note
   V4p.Settings.Basics.TopLevelEntities = "top_interconnect"
-  V4p.Settings.HoverInfo.ShowComments = SignalsOnly
+  V4p.Settings.HoverInfo.ShowComments = Always
   V4p.Settings.HoverInfo.ShowLibraries = False
   V4p.Settings.HoverInfo.ShowLocation = False
   V4p.Settings.HoverInfo.ResolveStdTypes = False

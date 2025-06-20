@@ -20,9 +20,9 @@
 
 
 --  import libs
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.NUMERIC_STD.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -38,47 +38,47 @@ USE work.I2S_constants.all;
 entity I2S_master is
     Port ( 
         --  bit clock for I2S bus (genertaed from MCLK)
-        BCLK : in STD_LOGIC;
+        BCLK : in std_logic;
         --  word select (select left or right audio)
-        WS : in STD_LOGIC;
-        DI : in STD_LOGIC;
+        WS : in std_logic;
+        DI : in std_logic;
 
-        DO_L : out STD_LOGIC_VECTOR ((16-1) downto 0);
-        DO_R : out STD_LOGIC_VECTOR ((16-1) downto 0);
+        DO_L : out std_logic_vector ((16-1) downto 0);
+        DO_R : out std_logic_vector ((16-1) downto 0);
         
         --  left data ready
-        --LDR  : out STD_LOGIC;
+        --LDR  : out std_logic;
         
         --  right data ready
-        --RDR  : out STD_LOGIC;
+        --RDR  : out std_logic;
 
-        RST :   in  STD_LOGIC);  --  reset signal
+        RST :   in  std_logic);  --  reset signal
 end I2S_master;
 
 architecture DataFlow of I2S_master is
 
     --  store audio data while being shifted in
-    signal d_temp   :   UNSIGNED(DO_L'range);
+    signal d_temp   :   unsigned(DO_L'range);
 
     
 
     --  select left or right to save data on WS change
-    signal  wsd :   STD_LOGIC;
+    signal  wsd :   std_logic;
     
     --  output data left ready
-    --signal  wsl :   STD_LOGIC;
+    --signal  wsl :   std_logic;
     
     --  output data right ready
-    --signal wsr :    STD_LOGIC;
+    --signal wsr :    std_logic;
 
     --  indecate change in WS
-    signal  wsp :   STD_LOGIC;
+    signal  wsp :   std_logic;
     
     --  current counter index to write data
-    signal  cnt :   UNSIGNED(3 downto 0);
+    signal  cnt :   unsigned(3 downto 0);
 
     --  to zero counter
-    constant    CNT_ZERO    :   UNSIGNED(cnt'range):=to_unsigned(0, cnt'length);
+    constant    CNT_ZERO    :   unsigned(cnt'range):=to_unsigned(0, cnt'length);
 
     signal  ind :   INTEGER range 0 to 15;
 

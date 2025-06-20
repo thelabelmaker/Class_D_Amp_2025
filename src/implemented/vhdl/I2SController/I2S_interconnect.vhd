@@ -1,79 +1,89 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 04/29/2025 11:04:14 AM
--- Design Name: 
--- Module Name: I2S_interconnect - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
---  import libs
-library work;
+-------------------------------------------------------------------------------
+--
+--  i2s_interconnect.vhd
+--
+--  this file contains the interconnect for the i2s interface. it acts as a
+--  wrapper so that i dont need to modify my top level entity if i change things
+--  in my i2s code or configuration.
+--  
+--  Revision History:
+--    29 Apr 25  Ethan Labelson     inital revision
+--    29 Apr 25  Ethan Labelson     add "interconnect" to clean integration 
+--    14 May 25  Ethan Labelson     adjust for ESP32 (working audio out!)
+--    09 Jun 25  Ethan Labelson     update to fit i2s slave receiver
+--    19 Jun 25  Ethan Labelson     updated comments and docs
+-------------------------------------------------------------------------------
+
+library ieee; --  import needed standard libs
+    use ieee.std_logic_1164.all;
+    use ieee.NUMERIC_STD.all;
+
+library work; --  import i2s info
     use work.I2S_constants.all;
-
-library IEEE;
-    use IEEE.STD_LOGIC_1164.all;
-    use IEEE.NUMERIC_STD.all;
-
-    -- Uncomment the following library declaration if instantiating
-    -- any Xilinx leaf cells in this code.
-    --library UNISIM;
-    --use UNISIM.VComponents.all;
-
-library work;
     use work.I2S_slave;
-    use work.I2S_CLK_MGR;
-    use work.PWM_output;
-    use work.I2S_constants;
 
+--  entity declaration for i2s_interconnect 
+    --  inputs:
+    --      WS          :   audio frame clock; word select choose L/R
+    --      BCK         :   audio bit clock; data bits sync with bck 
+    --      CLK         :   global clock signal
+    --      DI          :   data bit; serial data in from i2s
+    --      RST         :   system reset
+
+    --  outputs:
+    --      L_RDY       :   data ready bit; indicates left data ready   
+    --      R_RDY       :   data ready bit; indicates right data ready
+    --      DO_L        :   signed i2s data; left data in from i2s
+    --      DO_R        :   signed i2s data; right data in from i2s
+    
 entity I2S_interconnect is
-    port (CLK   : in  STD_LOGIC;
-          RST   : in  STD_LOGIC;
-          DI    : in  STD_LOGIC;
-          BCK   : in  STD_LOGIC;
-          WS    : in  STD_LOGIC;
-          L_RDY : out STD_LOGIC;
-          R_RDY : out STD_LOGIC;
-          DO_L  : out STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
-          DO_R  : out STD_LOGIC_VECTOR((AUD_B - 1) downto 0));
+    port (
+        --  global clock
+        CLK   : in  std_logic;
+        --  reset 
+        RST   : in  std_logic;
+        --  i2s data in 
+        DI    : in  std_logic;
+        --  bit clock
+        BCK   : in  std_logic;
+        --  LR-clk
+        WS    : in  std_logic;
+        --  left data output ready 
+        L_RDY : out std_logic;
+        --  right data output ready
+        R_RDY : out std_logic;
+        --  left audio data output
+        DO_L  : out std_logic_vector((AUD_B - 1) downto 0);
+        --  right audio data output
+        DO_R  : out std_logic_vector((AUD_B - 1) downto 0));
 end entity;
 
 architecture Behavioral of I2S_interconnect is
 
     component I2S_slave is
         port (
-            MCLK : in STD_LOGIC;
+            MCLK : in  std_logic;
             --  bit clock for I2S bus (genertaed from MCLK)
-            BCLK : in  STD_LOGIC;
+            BCLK : in  std_logic;
 
             --  word select (select left or right audio)
-            WS   : in  STD_LOGIC;
-            DI   : in  STD_LOGIC;
+            WS   : in  std_logic;
+            DI   : in  std_logic;
 
-            DO_L : out STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
-            DO_R : out STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
+            --  data output from i2s
+            DO_L : out std_logic_vector((AUD_B - 1) downto 0);
+            DO_R : out std_logic_vector((AUD_B - 1) downto 0);
 
             --  left data ready
-            LDR  : out STD_LOGIC;
+            LDR  : out std_logic;
 
             --  right data ready
-            RDR  : out STD_LOGIC;
+            RDR  : out std_logic;
 
-            RST  : in  STD_LOGIC); --  reset signal
+            RST  : in  std_logic); --  reset signal
     end component;
 
 begin
-
     control: I2S_slave
         port map (
             MCLK => CLK,
@@ -86,5 +96,4 @@ begin
             RDR  => R_RDY,
             RST  => RST
         );
-
 end architecture;

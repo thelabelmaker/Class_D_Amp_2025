@@ -19,13 +19,13 @@
 ----------------------------------------------------------------------------------
 
 
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
 library work;
 use work.I2S_constants.all;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
-use IEEE.NUMERIC_STD.ALL;
+use ieee.NUMERIC_STD.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -33,19 +33,19 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity I2S_CLK_MGR is
-    Port ( SYSCLK   : in STD_LOGIC;
-           WS       : out STD_LOGIC;
-           BCLK     : out STD_LOGIC;
-           FSYNC_L  : out STD_LOGIC;
-           FSYNC_R  : out STD_LOGIC;
-           RST      : in STD_LOGIC);
+    Port ( SYSCLK   : in std_logic;
+           WS       : out std_logic;
+           BCLK     : out std_logic;
+           FSYNC_L  : out std_logic;
+           FSYNC_R  : out std_logic;
+           RST      : in std_logic);
 end I2S_CLK_MGR;
 
 architecture Behavioral of I2S_CLK_MGR is
     --  divider for system clock to generate other clks
-    signal sclk_div :   UNSIGNED((WS_B) downto 0);
+    signal sclk_div :   unsigned((WS_B) downto 0);
     --  data valid pulse (data can be read by PWM)
-    signal d_val_p  :   STD_LOGIC;
+    signal d_val_p  :   std_logic;
     constant WS_DIV :   integer :=  sclk_div'high;
     constant B_DIV  :   integer :=  DIV_B-1;
     

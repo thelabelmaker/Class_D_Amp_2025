@@ -1,102 +1,108 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 05/31/2025 11:36:57 PM
--- Design Name: 
--- Module Name: audio_interconnect - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+--
+--  audio_interconnect.vhd
+--  
+--  this file connects together all of the audio manipulation components. it
+--  attaches the crossover to the quantizer, and makes sure all the high pass,
+--  low pass, left and right audio ends up going to the correct place.
+--  
+--  Revision History:
+--    31 May 25  Ethan Labelson     inital revision
+--    01 Jun 25  Ethan Labelson     project restructured more logically
+--    02 Jun 25  Ethan Labelson     touch up restructure
+--    19 Jun 25  Ethan Labelson     updated comments and docs
+-------------------------------------------------------------------------------
 
-library IEEE;
-    use IEEE.STD_LOGIC_1164.all;
 
-    -- Uncomment the following library declaration if using
-    -- arithmetic functions with Signed or Unsigned values
-    --use IEEE.NUMERIC_STD.ALL;
+
+library ieee;
+    use ieee.std_logic_1164.all;
 
 library work;
     use work.I2S_constants.all;
 
-    -- Uncomment the following library declaration if instantiating
-    -- any Xilinx leaf cells in this code.
-    --library UNISIM;
-    --use UNISIM.VComponents.all;
+--  entity declaration for crossover_interconnect 
+    --  inputs:
+    --      AUD_IN_L    :   signed opperand; left channel audio in
+    --      AUD_IN_R    :   signed opperand; right channel audio in   
+    --      CLK         :   global clock signal
+    --      RST         :   system reset
+    --      L_READ      :   read signal; left data in can be read
+    --      R_READ      :   read signal; right data in can be read
+    --      
+    --  outputs:
+    --      AUD_HPF_L   :   signed result; left high pass result   
+    --      AUD_HPF_R   :   signed result; right high pass result
+    --      AUD_LPF_L   :   signed result; left low pass result
+    --      AUD_LPF_R   :   signed result; right low pass result
 
 entity audio_interconnect is
     port (
-
+        --  left audio input
         AUD_IN_L  : in  std_logic_vector((AUD_B - 1) downto 0);
+        --  right audio input
         AUD_IN_R  : in  std_logic_vector((AUD_B - 1) downto 0);
 
-        AUD_HPF_R : out STD_LOGIC;
-        AUD_HPF_L : out STD_LOGIC;
-        AUD_LPF_R : out STD_LOGIC;
-        AUD_LPF_L : out STD_LOGIC;
+        --  high pass right audio output
+        AUD_HPF_R : out std_logic;
+        --  high pass left audio output
+        AUD_HPF_L : out std_logic;
+        --  low pass right audio output
+        AUD_LPF_R : out std_logic;
+        --  low pass left audio output
+        AUD_LPF_L : out std_logic;
 
+        --  signals for changing params via i2c. currently unused
         update    : in  std_logic;
         addr      : in  std_logic_vector(7 downto 0);
         cval      : in  std_logic_vector(31 downto 0);
 
+        --  signals indicating data can be read
         L_READ    : in  std_logic;
         R_READ    : in  std_logic;
 
-        CLK       : in  STD_LOGIC;
-        RST       : in  STD_LOGIC);
+        --  global clock
+        CLK       : in  std_logic;
+        --  system reset
+        RST       : in  std_logic);
 end entity;
 
 architecture Behavioral of audio_interconnect is
-    component I2S_interconnect is
-        port (CLK   : in  STD_LOGIC;
-              RST   : in  STD_LOGIC;
-              DI    : in  STD_LOGIC;
-              BCK   : out STD_LOGIC;
-              WS    : out STD_LOGIC;
-              L_RDY : out STD_LOGIC;
-              R_RDY : out STD_LOGIC;
-              DO_L  : out STD_LOGIC_VECTOR((AUD_B - 1) downto 0);
-              DO_R  : out STD_LOGIC_VECTOR((AUD_B - 1) downto 0));
-    end component;
-
+    --  declare all submodules for use
+    --  crossover for running hpf and lpf
     component crossover_interconnect is
-        port (AUD_IN_L : in  std_logic_vector((AUD_B - 1) downto 0);
-              AUD_IN_R : in  std_logic_vector((AUD_B - 1) downto 0);
-              HPF_L    : out std_logic_vector((CO_B - 1) downto 0);
-              HPF_R    : out std_logic_vector((CO_B - 1) downto 0);
-              LPF_L    : out std_logic_vector((CO_B - 1) downto 0);
-              LPF_R    : out std_logic_vector((CO_B - 1) downto 0);
-              CLK      : in  STD_LOGIC;
-              RST      : in  STD_LOGIC;
-              L_RDY    : out STD_LOGIC;
-              R_RDY    : out STD_LOGIC;
-              L_READ   : in  STD_LOGIC;
-              R_READ   : in  STD_LOGIC);
+        port (
+            AUD_IN_L : in  std_logic_vector((AUD_B - 1) downto 0);
+            AUD_IN_R : in  std_logic_vector((AUD_B - 1) downto 0);
+            HPF_L    : out std_logic_vector((CO_B - 1) downto 0);
+            HPF_R    : out std_logic_vector((CO_B - 1) downto 0);
+            LPF_L    : out std_logic_vector((CO_B - 1) downto 0);
+            LPF_R    : out std_logic_vector((CO_B - 1) downto 0);
+            CLK      : in  std_logic;
+            RST      : in  std_logic;
+            L_RDY    : out std_logic;
+            R_RDY    : out std_logic;
+            L_READ   : in  std_logic;
+            R_READ   : in  std_logic);
     end component;
 
-    component Quantizer_Interconnect is
-        port (L_READ : in  STD_LOGIC;
-              R_READ : in  STD_LOGIC;
-              DI_L   : in  STD_LOGIC_VECTOR((CO_B - 1) downto 0);
-              DI_R   : in  STD_LOGIC_VECTOR((CO_B - 1) downto 0);
-              update : in  std_logic;
-              addr   : in  std_logic_vector(7 downto 0);
-              cval   : in  std_logic_vector(31 downto 0);
-              CLK    : in  STD_LOGIC;
-              RST    : in  STD_LOGIC;
-              EN_L   : out STD_LOGIC;
-              EN_R   : out STD_LOGIC);
+    --  quantizer for doing sigma delta and pwm
+    component quantizer_interconnect is
+        port (
+            L_READ : in  std_logic;
+            R_READ : in  std_logic;
+            DI_L   : in  std_logic_vector((CO_B - 1) downto 0);
+            DI_R   : in  std_logic_vector((CO_B - 1) downto 0);
+            update : in  std_logic;
+            addr   : in  std_logic_vector(7 downto 0);
+            cval   : in  std_logic_vector(31 downto 0);
+            CLK    : in  std_logic;
+            RST    : in  std_logic;
+            EN_L   : out std_logic;
+            EN_R   : out std_logic);
     end component;
 
+    --  signals to wire things together
     signal hpf_l : std_logic_vector((CO_B - 1) downto 0);
     signal hpf_r : std_logic_vector((CO_B - 1) downto 0);
     signal lpf_l : std_logic_vector((CO_B - 1) downto 0);
@@ -107,6 +113,7 @@ architecture Behavioral of audio_interconnect is
 
 begin
 
+    --  wire together the crossover
     filters: crossover_interconnect
         port map (
             AUD_IN_L => AUD_IN_L,
@@ -123,7 +130,8 @@ begin
             R_READ   => R_READ
         );
 
-    quantizer_hpf: Quantizer_Interconnect
+    --  pipe crossover into quantizer for hpf
+    quantizer_hpf: quantizer_interconnect
         port map (
             L_READ => co_r_rdy,
             R_READ => co_l_rdy,
@@ -138,7 +146,8 @@ begin
             EN_R   => AUD_HPF_R
         );
 
-    quantizer_lpf: Quantizer_Interconnect
+    --  pipe crossover into quantizer for lpf
+    quantizer_lpf: quantizer_interconnect
         port map (
             L_READ => co_r_rdy,
             R_READ => co_l_rdy,
